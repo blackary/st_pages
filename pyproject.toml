@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "streamlit-pages"
+name = "st-pages"
 version = "0.1.0"
 description = "An experimental version of Streamlit Multi-Page Apps"
 authors = ["Zachary Blackwood <zachary@streamlit.io>"]
 readme = "README.md"
-packages = [{include = "streamlit_pages", from = "src"}]
+packages = [{include = "st_pages", from = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.9.7 || >3.9.7,<4.0"
@@ -21,3 +21,35 @@ tox = "^3.27.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = ["./.venv", "./direnv", ".env"]
+
+[tool.black]
+exclude = '''
+(
+  /(
+      \.vscode
+    | \.git
+    | \.pytest_cache
+    | \.mypy_cache
+    | \.venv
+    | \.env
+    | \.direnv
+  )/
+)
+'''
+include = '\.pyi?$'
+line-length = 88
+
+[tool.mypy]
+files = [
+  "**/*.py",
+]
+follow_imports = "silent"
+ignore_missing_imports = true
+scripts_are_modules = true
+python_version = 3.9

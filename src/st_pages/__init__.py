@@ -56,8 +56,12 @@ class Page:
     icon: Optional[str] = None
 
     @property
+    def page_path(self) -> Path:
+        return Path(self.path)
+
+    @property
     def page_name(self) -> str:
-        standard_name = page_icon_and_name(Path(self.path))[1]
+        standard_name = page_icon_and_name(self.page_path)[1]
         standard_name = standard_name.replace("_", " ").title()
         if self.name is None:
             return standard_name
@@ -65,13 +69,13 @@ class Page:
 
     @property
     def page_icon(self) -> str:
-        standard_icon = page_icon_and_name(Path(self.path))[0]
+        standard_icon = page_icon_and_name(self.page_path)[0]
         icon = self.icon or standard_icon or ""
         return translate_icon(icon)
 
     @property
     def page_hash(self) -> str:
-        return calc_md5(self.path)
+        return calc_md5(str(self.page_path))
 
 
 def show_pages(pages: Iterable[Page]):
@@ -85,7 +89,7 @@ def show_pages(pages: Iterable[Page]):
             "page_script_hash": page.page_hash,
             "page_name": page.page_name,
             "icon": page.page_icon,
-            "script_path": page.path,
+            "script_path": str(page.page_path),
         }
 
     _on_pages_changed.send()

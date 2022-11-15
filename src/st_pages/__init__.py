@@ -40,7 +40,8 @@ DEFAULT_PAGE: str = Server.main_script_path  # type: ignore
 
 def _add_page_title(add_icon: bool = True):
     """
-    Adds the icon and title to the page
+    Adds the icon and page name to the page as an st.title, and also sets the
+    page title and favicon in the browser tab.
     """
     pages = get_pages(DEFAULT_PAGE)
     ctx = get_script_run_ctx()
@@ -89,6 +90,21 @@ def translate_icon(icon: str) -> str:
 
 @dataclass
 class Page:
+    """
+    Utility class for working with pages
+
+    Parameters
+    ----------
+    path: str
+        The path to the page
+    name: str (optional)
+        The name of the page. If not provided, the name will be inferred from
+        the path
+    icon: str (optional)
+        The icon of the page. If not provided, the icon will be inferred from
+        the path
+    """
+
     path: str
     name: Optional[str] = None
     icon: Optional[str] = None
@@ -117,6 +133,13 @@ class Page:
 
 
 def _show_pages(pages: Iterable[Page]):
+    """
+    Given a list of Page objects, overwrite whatever pages are currently being
+    shown in the sidebar, and overwrite them with this new set of pages.
+
+    NOTE: This changes the list of pages globally, not just for the current user, so
+    it is not appropriate for dymaically changing the list of pages.
+    """
     current_pages = get_pages(DEFAULT_PAGE)
     if set(current_pages.keys()) == set(p.page_hash for p in pages):
         return

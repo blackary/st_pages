@@ -22,3 +22,10 @@ with st.echo("below"):
     )
 
 "See more at https://github.com/blackary/st_pages"
+
+with st.expander("Show documentation"):
+    st.help(show_pages)
+
+    st.help(Page)
+
+    st.help(add_page_title)

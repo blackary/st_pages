@@ -5,12 +5,14 @@ from typing import Dict, Iterable, Optional, Tuple
 import requests
 import streamlit as st
 from streamlit.commands.page_config import get_random_emoji
+from streamlit.errors import StreamlitAPIException
 
 try:
     from streamlit.web.server import Server
 except ImportError:
     from streamlit.server.server import Server  # type: ignore
 
+from streamlit.runtime.scriptrunner import get_script_run_ctx
 from streamlit.source_util import _on_pages_changed, get_pages
 
 try:
@@ -26,6 +28,31 @@ except ImportError:
 from streamlit.util import calc_md5
 
 DEFAULT_PAGE: str = Server.main_script_path  # type: ignore
+
+
+def add_page_title(add_icon: bool = True):
+    """
+    Adds the icon and title to the page
+    """
+    pages = get_pages(DEFAULT_PAGE)
+    ctx = get_script_run_ctx()
+    if ctx is not None:
+        try:
+            current_page = pages[ctx.page_script_hash]
+        except KeyError:
+            return
+
+        page_title = current_page["page_name"]
+        page_icon = current_page["icon"]
+        try:
+            st.set_page_config(page_title=page_title, page_icon=page_icon)
+        except StreamlitAPIException:
+            pass
+
+        if add_icon:
+            st.title(f"{translate_icon(page_icon)} {page_title}")
+        else:
+            st.title(page_title)
 
 
 @st.experimental_singleton

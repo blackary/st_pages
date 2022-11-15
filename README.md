@@ -2,9 +2,7 @@
 
 [![Build Status](https://img.shields.io/github/workflow/status/blackary/st_pages/testing/main)](https://github.com/blackary/st_pages/actions?query=workflow%3A%22testing%22+branch%3Amain)
 
-<!--![Python Versions]("https://img.shields.io/pypi/pyversions/st_pages.svg")-->
-
-![Python versions](https://img.shields.io/badge/python-3.7--3.10-blue.svg)
+![Python Versions](https://img.shields.io/pypi/pyversions/st_pages.svg)
 
 ![Streamlit versions](https://img.shields.io/badge/streamlit-1.10.0--1.14.0-white.svg)
 

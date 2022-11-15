@@ -20,3 +20,5 @@ with st.echo("below"):
             Page("example_app/example_three.py"),
         ]
     )
+
+"See more at https://github.com/blackary/st_pages"

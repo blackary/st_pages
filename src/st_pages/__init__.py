@@ -2,6 +2,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Tuple
 
+try:
+    from streamlit import _gather_metrics
+except ImportError:
+
+    def _gather_metrics(name, func, *args, **kwargs):
+        return func
+
+
 import requests
 import streamlit as st
 from streamlit.commands.page_config import get_random_emoji
@@ -30,7 +38,7 @@ from streamlit.util import calc_md5
 DEFAULT_PAGE: str = Server.main_script_path  # type: ignore
 
 
-def add_page_title(add_icon: bool = True):
+def _add_page_title(add_icon: bool = True):
     """
     Adds the icon and title to the page
     """
@@ -53,6 +61,9 @@ def add_page_title(add_icon: bool = True):
             st.title(f"{translate_icon(page_icon)} {page_title}")
         else:
             st.title(page_title)
+
+
+add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
 
 
 @st.experimental_singleton
@@ -105,7 +116,7 @@ class Page:
         return calc_md5(str(self.page_path))
 
 
-def show_pages(pages: Iterable[Page]):
+def _show_pages(pages: Iterable[Page]):
     current_pages = get_pages(DEFAULT_PAGE)
     if set(current_pages.keys()) == set(p.page_hash for p in pages):
         return
@@ -120,3 +131,6 @@ def show_pages(pages: Iterable[Page]):
         }
 
     _on_pages_changed.send()
+
+
+show_pages = _gather_metrics("st_pages.show_pages", _show_pages)

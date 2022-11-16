@@ -26,7 +26,7 @@ with st.echo("below"):
         ]
     )
 
-"## Alternative approach, useing a config file"
+"## Alternative approach, using a config file"
 
 "Contents of .streamlit/pages.toml"
 

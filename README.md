@@ -36,6 +36,8 @@ apps.
 
 ## How to use
 
+### Method one: declare pages inside your streamlit code
+
 ```python
 from st_pages import Page, show_pages, add_page_title
 
@@ -47,7 +49,31 @@ add_page_title()
 show_pages(
     [
         Page("streamlit_app.py", "Home", "🏠"),
-        Page("other_pages/page2", "Page 2", ":books:"),
+        Page("other_pages/page2.py", "Page 2", ":books:"),
     ]
 )
+```
+
+### Method two: declare pages inside of a config file
+
+Contents of `.streamlit/pages.toml`
+
+```toml
+[[pages]]
+path = "streamlit_app.py"
+name = "Home"
+icon = "🏠"
+
+[[pages]]
+path = "other_pages/page2.py"
+name = "Page 2"
+icon = ":books:"
+```
+
+Streamlit code:
+
+```python
+from st_pages import show_pages_from_config
+
+show_pages_from_config()
 ```

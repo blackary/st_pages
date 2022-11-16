@@ -1,0 +1,23 @@
+[[pages]]
+path = "example_app/streamlit_app.py"
+name = "Home"
+icon = ":house:"
+
+[[pages]]
+path = "example_app/example_one.py"
+name = "Example One"
+icon = ":books:"
+
+[[pages]]
+path = "example_app/example_four.py"
+name = "Example Four"
+icon = "📖"
+
+[[pages]]
+path = "example_app/example_two.py"
+name = "Example Two"
+icon = "✏️"
+
+[[pages]]
+path = "example_app/example_three.py"
+

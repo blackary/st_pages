@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
+
+import toml
 
 try:
     from streamlit import _gather_metrics
@@ -157,3 +159,52 @@ def _show_pages(pages: Iterable[Page]):
 
 
 show_pages = _gather_metrics("st_pages.show_pages", _show_pages)
+
+
+def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> Optional[List[Page]]:
+    """
+    Given a path to a TOML file, read the file and return a list of Page objects
+    """
+    try:
+        raw_pages = toml.loads(Path(path).read_text())["pages"]
+    except (FileNotFoundError, toml.decoder.TomlDecodeError, KeyError):
+        st.error(
+            f"""
+        Could not find a valid {path} file. Please create one
+        with the following format:
+
+        ```toml
+        [[pages]]
+        path = "example_app/streamlit_app.py"
+        name = "Home"
+        icon = ":house"
+
+        [[pages]]
+        path = "example_app/example_one.py"
+
+        ...
+            """
+        )
+        return None
+
+    pages: List[Page] = []
+    for page in raw_pages:
+        pages.append(Page(**page))
+
+    return pages
+
+
+def _show_pages_from_config(path: str = ".streamlit/pages.toml"):
+    """
+    Show the pages listed in the config file at the given path
+    (default: .streamlit/pages.toml)
+    """
+    pages = _get_pages_from_config(path)
+
+    if pages is not None:
+        show_pages(pages)
+
+
+show_pages_from_config = _gather_metrics(
+    "st_pages.show_pages_from_config", _show_pages_from_config
+)

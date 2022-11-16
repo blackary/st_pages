@@ -1,5 +1,10 @@
 def test_import():
-    from st_pages import Page, add_page_title, show_pages  # noqa: F401
+    from st_pages import (  # noqa: F401
+        Page,
+        add_page_title,
+        show_pages,
+        show_pages_from_config,
+    )
 
 
 def test_page():

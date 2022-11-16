@@ -22,7 +22,12 @@ try:
 except ImportError:
     from streamlit.server.server import Server  # type: ignore
 
-from streamlit.runtime.scriptrunner import get_script_run_ctx
+try:
+
+    from streamlit.runtime.scriptrunner import get_script_run_ctx
+except ImportError:
+    from streamlit.scriptrunner.script_run_context import get_script_run_ctx  # type: ignore
+
 from streamlit.source_util import _on_pages_changed, get_pages
 
 try:

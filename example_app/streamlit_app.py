@@ -1,11 +1,16 @@
+from pathlib import Path
+
 import streamlit as st
 
 # "# A Better way to Set Up Multi-Page Streamlit Apps"
+
 
 with st.echo("below"):
     from st_pages import Page, add_page_title, show_pages
 
     add_page_title()  # Optional method to add title and icon to current page
+
+    "## Declaring the pages in your app:"
 
     show_pages(
         [
@@ -20,6 +25,19 @@ with st.echo("below"):
             Page("example_app/example_three.py"),
         ]
     )
+
+"## Alternative approach, useing a config file"
+
+"Contents of .streamlit/pages.toml"
+
+st.code(Path(".streamlit/pages.toml").read_text(), language="toml")
+
+"Streamlit script:"
+
+with st.echo("below"):
+    from st_pages import show_pages_from_config
+
+    show_pages_from_config()
 
 "See more at https://github.com/blackary/st_pages"
 

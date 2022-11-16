@@ -1,1 +1,1 @@
-st_pages>=0.1.1
+st_pages>=0.2.0

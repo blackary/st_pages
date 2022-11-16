@@ -28,7 +28,7 @@ with st.echo("below"):
 
 "## Alternative approach, using a config file"
 
-"Contents of .streamlit/pages.toml"
+"Contents of `.streamlit/pages.toml`"
 
 st.code(Path(".streamlit/pages.toml").read_text(), language="toml")
 

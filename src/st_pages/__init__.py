@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
 
 import toml
 
 try:
-    from streamlit import _gather_metrics
+    from streamlit import _gather_metrics  # type: ignore
 except ImportError:
 
     def _gather_metrics(name, func, *args, **kwargs):
@@ -18,12 +19,6 @@ from streamlit.commands.page_config import get_random_emoji
 from streamlit.errors import StreamlitAPIException
 
 try:
-    from streamlit.web.server import Server
-except ImportError:
-    from streamlit.server.server import Server  # type: ignore
-
-try:
-
     from streamlit.runtime.scriptrunner import get_script_run_ctx
 except ImportError:
     from streamlit.scriptrunner.script_run_context import get_script_run_ctx  # type: ignore
@@ -35,22 +30,20 @@ try:
 except ImportError:
     from streamlit.source_util import page_name_and_icon  # type: ignore
 
-    def page_icon_and_name(script_path: Path) -> Tuple[str, str]:
+    def page_icon_and_name(script_path: Path) -> tuple[str, str]:
         icon, name = page_name_and_icon(script_path)
         return name, icon
 
 
 from streamlit.util import calc_md5
 
-DEFAULT_PAGE: str = Server.main_script_path  # type: ignore
 
-
-def _add_page_title(add_icon: bool = True):
+def _add_page_title(add_icon: bool = True, also_indent: bool = True):
     """
     Adds the icon and page name to the page as an st.title, and also sets the
     page title and favicon in the browser tab.
     """
-    pages = get_pages(DEFAULT_PAGE)
+    pages = get_pages("")
     ctx = get_script_run_ctx()
     if ctx is not None:
         try:
@@ -70,12 +63,15 @@ def _add_page_title(add_icon: bool = True):
         else:
             st.title(page_title)
 
+    if also_indent:
+        add_indentation()
+
 
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
 
 
 @st.experimental_singleton
-def get_icons() -> Dict[str, str]:
+def get_icons() -> dict[str, str]:
     url = "https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json"
     return requests.get(url).json()
 
@@ -113,12 +109,13 @@ class Page:
     """
 
     path: str
-    name: Optional[str] = None
-    icon: Optional[str] = None
+    name: str | None = None
+    icon: str | None = None
+    is_section: bool = False
 
     @property
     def page_path(self) -> Path:
-        return Path(self.path)
+        return Path(str(self.path))
 
     @property
     def page_name(self) -> str:
@@ -136,10 +133,35 @@ class Page:
 
     @property
     def page_hash(self) -> str:
+        if self.is_section:
+            return calc_md5(f"{self.page_path}_{self.page_name}")
         return calc_md5(str(self.page_path))
 
+    def to_dict(self) -> dict[str, str | bool]:
+        return {
+            "page_script_hash": self.page_hash,
+            "page_name": self.page_name,
+            "icon": self.page_icon,
+            "script_path": str(self.page_path),
+            "is_section": self.is_section,
+        }
 
-def _show_pages(pages: Iterable[Page]):
+    @classmethod
+    def from_dict(cls, page_dict: dict[str, str | bool]) -> Page:
+        return cls(
+            path=str(page_dict["script_path"]),
+            name=str(page_dict["page_name"]),
+            icon=str(page_dict["icon"]),
+            is_section=bool(page_dict["is_section"]),
+        )
+
+
+class Section(Page):
+    def __init__(self, name: str, icon: str | None = None):
+        super().__init__(path="", name=name, icon=icon, is_section=True)
+
+
+def _show_pages(pages: list[Page]):
     """
     Given a list of Page objects, overwrite whatever pages are currently being
     shown in the sidebar, and overwrite them with this new set of pages.
@@ -147,18 +169,22 @@ def _show_pages(pages: Iterable[Page]):
     NOTE: This changes the list of pages globally, not just for the current user, so
     it is not appropriate for dymaically changing the list of pages.
     """
-    current_pages = get_pages(DEFAULT_PAGE)
+    current_pages: dict[str, dict[str, str | bool]] = get_pages("")  # type: ignore
     if set(current_pages.keys()) == set(p.page_hash for p in pages):
         return
 
+    try:
+        default_page = [p.path for p in pages if p.path][0]
+    except IndexError:
+        raise ValueError("Must pass at least one page to show_pages")
+
+    for page in pages:
+        if page.is_section:
+            page.path = default_page
+
     current_pages.clear()
     for page in pages:
-        current_pages[page.page_hash] = {
-            "page_script_hash": page.page_hash,
-            "page_name": page.page_name,
-            "icon": page.page_icon,
-            "script_path": str(page.page_path),
-        }
+        current_pages[page.page_hash] = page.to_dict()
 
     _on_pages_changed.send()
 
@@ -166,12 +192,14 @@ def _show_pages(pages: Iterable[Page]):
 show_pages = _gather_metrics("st_pages.show_pages", _show_pages)
 
 
-def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> Optional[List[Page]]:
+def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> list[Page] | None:
     """
     Given a path to a TOML file, read the file and return a list of Page objects
     """
     try:
-        raw_pages = toml.loads(Path(path).read_text())["pages"]
+        raw_pages: list[dict[str, str | bool]] = toml.loads(Path(path).read_text())[
+            "pages"
+        ]
     except (FileNotFoundError, toml.decoder.TomlDecodeError, KeyError):
         st.error(
             f"""
@@ -192,9 +220,13 @@ def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> Optional[List
         )
         return None
 
-    pages: List[Page] = []
+    pages: list[Page] = []
     for page in raw_pages:
-        pages.append(Page(**page))
+        if page.get("is_section"):
+            page["path"] = ""
+            pages.append(Section(page["name"], page["icon"]))  # type: ignore
+        else:
+            pages.append(Page(**page))  # type: ignore
 
     return pages
 
@@ -213,3 +245,50 @@ def _show_pages_from_config(path: str = ".streamlit/pages.toml"):
 show_pages_from_config = _gather_metrics(
     "st_pages.show_pages_from_config", _show_pages_from_config
 )
+
+
+def _add_indentation():
+    """
+    For an app that has set one or more "sections", this will add indentation
+    to the files "within" a section, and make the sections itself
+    unclickable. Makes the sidebar look like something like this:
+
+    - page 1
+    - section 1
+        - page 2
+        - page 3
+    - section 2
+        - page 4
+    """
+    styling = ""
+    current_pages = get_pages("")
+
+    is_indented = False
+
+    for idx, val in enumerate(current_pages.values()):
+        if val.get("is_section"):
+            styling += f"""
+                li:nth-child({idx + 1}) a {{
+                    pointer-events: none; /* Disable clicking on section header */
+                }}
+            """
+            is_indented = True
+        elif is_indented:
+            # Unless specifically unnested, indent all pages that aren't section headers
+            styling += f"""
+                li:nth-child({idx + 1}) span:nth-child(1) {{
+                    margin-left: 1.5rem;
+                }}
+            """
+
+    st.write(
+        f"""
+        <style>
+            {styling}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+add_indentation = _gather_metrics("st_pages.add_indentation", _add_indentation)

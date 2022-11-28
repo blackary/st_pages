@@ -1,0 +1,37 @@
+[[pages]]
+path = "example_app_sections/app.py"
+name = "Home"
+icon = ":house:"
+
+[[pages]]
+path = "example_app_sections/example_one.py"
+name = "Example One"
+icon = ":books:"
+
+[[pages]]
+name = "Cool apps"
+icon = ":pig:"
+is_section = true
+
+[[pages]]
+path = "example_app_sections/example_four.py"
+name = "Example Four"
+icon = "📖"
+
+[[pages]]
+path = "example_app_sections/example_two.py"
+name = "Example Two"
+icon = "✏️"
+
+[[pages]]
+name = "Other apps"
+icon = ":horse:"
+is_section = true
+
+[[pages]]
+path = "example_app_sections/example_three.py"
+
+[[pages]]
+path = "example_app_sections/example_five.py"
+name = "Example Five"
+icon = "🧰"

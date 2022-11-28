@@ -9,11 +9,6 @@ name = "Example One"
 icon = ":books:"
 
 [[pages]]
-name = "Cool apps"
-icon = ":pig:"
-is_section = true
-
-[[pages]]
 path = "example_app/example_four.py"
 name = "Example Four"
 icon = "📖"
@@ -22,11 +17,6 @@ icon = "📖"
 path = "example_app/example_two.py"
 name = "Example Two"
 icon = "✏️"
-
-[[pages]]
-name = "Other apps"
-icon = ":horse:"
-is_section = true
 
 [[pages]]
 path = "example_app/example_three.py"

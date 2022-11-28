@@ -59,12 +59,14 @@ def _add_page_title(add_icon: bool = True, also_indent: bool = True):
             pass
 
         if add_icon:
-            st.title(f"{translate_icon(page_icon)} {page_title}")
+            to_add = f"# {translate_icon(page_icon)} {page_title}"
         else:
-            st.title(page_title)
+            to_add = f"# {page_title}"
 
-    if also_indent:
-        add_indentation()
+        if also_indent:
+            to_add += _get_indentation_code()
+
+        st.markdown(to_add, unsafe_allow_html=True)
 
 
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
@@ -247,19 +249,7 @@ show_pages_from_config = _gather_metrics(
 )
 
 
-def _add_indentation():
-    """
-    For an app that has set one or more "sections", this will add indentation
-    to the files "within" a section, and make the sections itself
-    unclickable. Makes the sidebar look like something like this:
-
-    - page 1
-    - section 1
-        - page 2
-        - page 3
-    - section 2
-        - page 4
-    """
+def _get_indentation_code() -> str:
     styling = ""
     current_pages = get_pages("")
 
@@ -281,12 +271,33 @@ def _add_indentation():
                 }}
             """
 
-    st.write(
-        f"""
+    styling = f"""
         <style>
             {styling}
         </style>
-        """,
+    """
+
+    return styling
+
+
+def _add_indentation():
+    """
+    For an app that has set one or more "sections", this will add indentation
+    to the files "within" a section, and make the sections itself
+    unclickable. Makes the sidebar look like something like this:
+
+    - page 1
+    - section 1
+        - page 2
+        - page 3
+    - section 2
+        - page 4
+    """
+
+    styling = _get_indentation_code()
+
+    st.write(
+        styling,
         unsafe_allow_html=True,
     )
 

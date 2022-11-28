@@ -1,6 +1,8 @@
 def test_import():
     from st_pages import (  # noqa: F401
         Page,
+        Section,
+        add_indentation,
         add_page_title,
         show_pages,
         show_pages_from_config,

@@ -3,7 +3,7 @@ from pathlib import Path
 import streamlit as st
 
 with st.echo("below"):
-    from st_pages import Page, Section, add_indentation, add_page_title, show_pages
+    from st_pages import Page, Section, add_page_title, show_pages
 
     add_page_title()  # Optional method to add title and icon to current page
     # Also calls add_indentation() by default, which indents pages within a section
@@ -45,6 +45,8 @@ with st.echo("below"):
 "See more at https://github.com/blackary/st_pages"
 
 with st.expander("Show documentation"):
+    from st_pages import add_indentation
+
     st.help(show_pages)
 
     st.help(Page)

@@ -59,14 +59,15 @@ def _add_page_title(add_icon: bool = True, also_indent: bool = True):
             pass
 
         if add_icon:
-            to_add = f"# {translate_icon(page_icon)} {page_title}"
+            st.title(f"{translate_icon(page_icon)} {page_title}")
         else:
-            to_add = f"# {page_title}"
+            st.title(page_title)
 
         if also_indent:
-            to_add += _get_indentation_code()
+            add_indentation()
+            # _get_indentation_code()
 
-        st.markdown(to_add, unsafe_allow_html=True)
+        # st.markdown(to_add, unsafe_allow_html=True)
 
 
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)

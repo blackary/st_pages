@@ -104,7 +104,7 @@ icon = ":books:"
 
 Example with sections:
 
-````toml
+```toml
 [[pages]]
 path = "streamlit_app.py"
 name = "Home"
@@ -119,6 +119,7 @@ icon = ":books:"
 name = "My second"
 icon = "🎈️"
 is_section = true
+```
 
 Streamlit code:
 
@@ -130,4 +131,4 @@ from st_pages import show_pages_from_config, add_page_title
 add_page_title()
 
 show_pages_from_config()
-````
+```

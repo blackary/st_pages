@@ -119,6 +119,11 @@ icon = ":books:"
 name = "My second"
 icon = "🎈️"
 is_section = true
+
+# Pages after an `is_section = true` will be indented
+[[pages]]
+name = "Another page"
+icon = "💪"
 ```
 
 Streamlit code:

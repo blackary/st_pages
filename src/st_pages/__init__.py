@@ -65,9 +65,6 @@ def _add_page_title(add_icon: bool = True, also_indent: bool = True):
 
         if also_indent:
             add_indentation()
-            # _get_indentation_code()
-
-        # st.markdown(to_add, unsafe_allow_html=True)
 
 
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
@@ -87,7 +84,7 @@ def translate_icon(icon: str) -> str:
     icons = get_icons()
     if icon == "random":
         icon = get_random_emoji()
-    if icon.startswith(":") and icon.endswith(":"):
+    elif icon.startswith(":") and icon.endswith(":"):
         icon = icon[1:-1]
         if icon in icons:
             return icons[icon]

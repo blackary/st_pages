@@ -197,9 +197,9 @@ def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> list[Page] | 
     Given a path to a TOML file, read the file and return a list of Page objects
     """
     try:
-        raw_pages: list[dict[str, str | bool]] = toml.loads(Path(path).read_text())[
-            "pages"
-        ]
+        raw_pages: list[dict[str, str | bool]] = toml.loads(
+            Path(path).read_text(encoding="utf-8")
+        )["pages"]
     except (FileNotFoundError, toml.decoder.TomlDecodeError, KeyError):
         st.error(
             f"""

@@ -70,7 +70,7 @@ If you want to organize your pages into sections with indention showing which pa
 belong to which section, you can do the following:
 
 ```python
-from st_pages import Page, show_pages, add_page_title
+from st_pages import Page, Section, show_pages, add_page_title
 
 add_page_title() # By default this also adds indentation
 

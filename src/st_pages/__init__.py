@@ -21,7 +21,9 @@ from streamlit.errors import StreamlitAPIException
 try:
     from streamlit.runtime.scriptrunner import get_script_run_ctx
 except ImportError:
-    from streamlit.scriptrunner.script_run_context import get_script_run_ctx  # type: ignore
+    from streamlit.scriptrunner.script_run_context import (
+        get_script_run_ctx,  # type: ignore
+    )
 
 from streamlit.source_util import _on_pages_changed, get_pages
 
@@ -135,6 +137,7 @@ class Page:
     def page_hash(self) -> str:
         if self.is_section:
             return calc_md5(f"{self.page_path}_{self.page_name}")
+        # return calc_md5(str(self.page_path.absolute()))
         return calc_md5(str(self.page_path))
 
     def to_dict(self) -> dict[str, str | bool]:
@@ -184,7 +187,10 @@ def _show_pages(pages: list[Page]):
 
     current_pages.clear()
     for page in pages:
+        # if page.page_hash not in current_pages:
         current_pages[page.page_hash] = page.to_dict()
+    # else:
+    #    current_pages[page.page_hash].update(page.to_dict())
 
     _on_pages_changed.send()
 

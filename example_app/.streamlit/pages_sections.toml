@@ -1,7 +1,7 @@
 [[pages]]
 path = "example_app/streamlit_app_sections.py"
 name = "Home"
-icon = "🏠"
+icon = ":house:"
 
 [[pages]]
 path = "example_app/example_one.py"

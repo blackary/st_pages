@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from time import sleep
 
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page, TimeoutError, expect
 
 LOCAL_TEST = False
 
@@ -72,5 +72,5 @@ def test_sections_unclickable(page: Page):
     expect(page.get_by_role("link", name="Cool apps")).to_be_visible()
 
     # Check that section title is not clickable
-    with pytest.raises(Exception):
+    with pytest.raises(TimeoutError):
         page.get_by_role("link", name="Cool apps").click()

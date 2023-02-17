@@ -21,7 +21,9 @@ from streamlit.errors import StreamlitAPIException
 try:
     from streamlit.runtime.scriptrunner import get_script_run_ctx
 except ImportError:
-    from streamlit.scriptrunner.script_run_context import get_script_run_ctx  # type: ignore
+    from streamlit.scriptrunner.script_run_context import (  # type: ignore
+        get_script_run_ctx,
+    )
 
 from streamlit.source_util import _on_pages_changed, get_pages
 
@@ -45,11 +47,19 @@ def _add_page_title(add_icon: bool = True, also_indent: bool = True):
     """
     pages = get_pages("")
     ctx = get_script_run_ctx()
+
     if ctx is not None:
         try:
             current_page = pages[ctx.page_script_hash]
         except KeyError:
-            return
+            try:
+                current_page = [
+                    p
+                    for p in pages.values()
+                    if p["relative_page_hash"] == ctx.page_script_hash
+                ][0]
+            except IndexError:
+                return
 
         page_title = current_page["page_name"]
         page_icon = current_page["icon"]
@@ -132,10 +142,16 @@ class Page:
         return translate_icon(icon)
 
     @property
-    def page_hash(self) -> str:
+    def relative_page_hash(self) -> str:
         if self.is_section:
             return calc_md5(f"{self.page_path}_{self.page_name}")
         return calc_md5(str(self.page_path))
+
+    @property
+    def page_hash(self) -> str:
+        if self.is_section:
+            return calc_md5(f"{self.page_path}_{self.page_name}")
+        return calc_md5(str(self.page_path.absolute()))
 
     def to_dict(self) -> dict[str, str | bool]:
         return {
@@ -144,6 +160,7 @@ class Page:
             "icon": self.page_icon,
             "script_path": str(self.page_path),
             "is_section": self.is_section,
+            "relative_page_hash": self.relative_page_hash,
         }
 
     @classmethod

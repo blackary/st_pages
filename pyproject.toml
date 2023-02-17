@@ -17,6 +17,7 @@ black = "^22.8.0"
 isort = "^5.10.1"
 mypy = "^0.971"
 tox = "^3.27.1"
+pytest-playwright = "^0.3.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -5,8 +5,6 @@ import streamlit as st
 with st.echo("below"):
     from st_pages import Page, add_page_title, show_pages
 
-    add_page_title()  # Optional method to add title and icon to current page
-
     "## Declaring the pages in your app:"
 
     show_pages(
@@ -23,6 +21,8 @@ with st.echo("below"):
             Page("example_app/example_five.py", "Example Five", "🧰"),
         ]
     )
+
+    add_page_title()  # Optional method to add title and icon to current page
 
 "## Alternative approach, using a config file"
 

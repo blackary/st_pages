@@ -16,3 +16,5 @@ __pycache__
 .tox/
 
 .streamlit/secrets.toml
+
+*.png

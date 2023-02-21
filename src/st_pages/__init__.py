@@ -91,11 +91,11 @@ def translate_icon(icon: str) -> str:
     If you pass a name of an icon, like :dog:, translate it into the
     corresponding unicode character
     """
-    icons = get_icons()
     if icon == "random":
         icon = get_random_emoji()
     elif icon.startswith(":") and icon.endswith(":"):
         icon = icon[1:-1]
+        icons = get_icons()
         if icon in icons:
             return icons[icon]
     return icon

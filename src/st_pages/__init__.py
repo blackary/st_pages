@@ -37,6 +37,11 @@ except ImportError:
         return name, icon
 
 
+try:
+    from streamlit import cache_resource
+except ImportError:
+    from streamlit import experimental_singleton as cache_resource
+
 from streamlit.util import calc_md5
 
 
@@ -80,7 +85,7 @@ def _add_page_title(add_icon: bool = True, also_indent: bool = True):
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
 
 
-@st.experimental_singleton
+@cache_resource
 def get_icons() -> dict[str, str]:
     url = "https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json"
     return requests.get(url).json()

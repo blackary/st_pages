@@ -73,4 +73,10 @@ def test_sections_unclickable(page: Page):
 
     # Check that section title is not clickable
     with pytest.raises(TimeoutError):
-        page.get_by_role("link", name="Cool apps").click()
+        page.get_by_role("link", name="Cool apps").click(timeout=5)
+
+
+def test_deprecation_warning(page: Page):
+    expect(
+        page.get_by_text("st.experimental_singleton is deprecated")
+    ).not_to_be_visible()

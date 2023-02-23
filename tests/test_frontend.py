@@ -58,3 +58,9 @@ def test_pages_available(page: Page):
     page.get_by_role("link", name="Example One").click()
 
     expect(page).to_have_title("Example One")
+
+
+def test_deprecation_warning(page: Page):
+    expect(
+        page.get_by_text("st.experimental_singleton is deprecated")
+    ).not_to_be_visible()

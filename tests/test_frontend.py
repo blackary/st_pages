@@ -64,3 +64,29 @@ def test_deprecation_warning(page: Page):
     expect(
         page.get_by_text("st.experimental_singleton is deprecated")
     ).not_to_be_visible()
+
+
+def test_wide_mode(page: Page):
+    """
+    Make sure that the wide mode argument is working by comparing the x positions of the
+    "Example One" and "Example Two" headers. The "Example Two" header should be further
+    to the right than the "Example One" header. Currently it is 50px further to the
+    right, but 30 should be enough to catch any regressions.
+    """
+    page.get_by_role("link", name="Example One").click()
+
+    bbox = page.get_by_text("📚 Example One").bounding_box()
+
+    assert bbox is not None
+
+    wide_mode_x = bbox["x"]
+
+    page.get_by_role("link", name="Example Two").click()
+
+    bbox = page.get_by_text("✏️ Example Two").bounding_box()
+
+    assert bbox is not None
+
+    regular_x = bbox["x"]
+
+    assert (regular_x - wide_mode_x) > 30

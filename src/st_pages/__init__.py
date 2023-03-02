@@ -45,10 +45,12 @@ except ImportError:
 from streamlit.util import calc_md5
 
 
-def _add_page_title(add_icon: bool = True, also_indent: bool = True):
+def _add_page_title(add_icon: bool = True, also_indent: bool = True, **kwargs):
     """
     Adds the icon and page name to the page as an st.title, and also sets the
     page title and favicon in the browser tab.
+
+    All **kwargs are passed to st.set_page_config
     """
     pages = get_pages("")
     ctx = get_script_run_ctx()
@@ -66,10 +68,17 @@ def _add_page_title(add_icon: bool = True, also_indent: bool = True):
             except IndexError:
                 return
 
+        if "page_title" not in kwargs:
+            kwargs["page_title"] = current_page["page_name"]
+
+        if "page_icon" not in kwargs:
+            kwargs["page_icon"] = current_page["icon"]
+
         page_title = current_page["page_name"]
         page_icon = current_page["icon"]
+
         try:
-            st.set_page_config(page_title=page_title, page_icon=page_icon)
+            st.set_page_config(**kwargs)
         except StreamlitAPIException:
             pass
 

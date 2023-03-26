@@ -136,6 +136,7 @@ class Page:
     name: str | None = None
     icon: str | None = None
     is_section: bool = False
+    in_section: bool = True
 
     @property
     def page_path(self) -> Path:
@@ -174,6 +175,7 @@ class Page:
             "icon": self.page_icon,
             "script_path": str(self.page_path),
             "is_section": self.is_section,
+            "in_section": self.in_section,
             "relative_page_hash": self.relative_page_hash,
         }
 
@@ -184,6 +186,7 @@ class Page:
             name=str(page_dict["page_name"]),
             icon=str(page_dict["icon"]),
             is_section=bool(page_dict["is_section"]),
+            in_section=bool(page_dict["in_section"]),
         )
 
 
@@ -292,6 +295,10 @@ def _get_indentation_code() -> str:
                 }}
             """
             is_indented = True
+        elif is_indented and not val.get("in_section"):
+            # Page is specifically unnested
+            # Un-indent all pages until next section
+            is_indented = False
         elif is_indented:
             # Unless specifically unnested, indent all pages that aren't section headers
             styling += f"""

@@ -45,7 +45,12 @@ except ImportError:
 from streamlit.util import calc_md5
 
 
-def _add_page_title(add_icon: bool = True, also_indent: bool = True, **kwargs):
+def _add_page_title(
+    add_icon: bool = True,
+    also_indent: bool = True,
+    hidden_pages: list[str] = [],
+    **kwargs,
+):
     """
     Adds the icon and page name to the page as an st.title, and also sets the
     page title and favicon in the browser tab.
@@ -89,6 +94,8 @@ def _add_page_title(add_icon: bool = True, also_indent: bool = True, **kwargs):
 
         if also_indent:
             add_indentation()
+        if len(hidden_pages) > 0:
+            hide_pages(hidden_pages)
 
 
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
@@ -284,9 +291,7 @@ show_pages_from_config = _gather_metrics(
 def _get_indentation_code() -> str:
     styling = ""
     current_pages = get_pages("")
-
     is_indented = False
-
     for idx, val in enumerate(current_pages.values()):
         if val.get("is_section"):
             styling += f"""
@@ -339,3 +344,50 @@ def _add_indentation():
 
 
 add_indentation = _gather_metrics("st_pages.add_indentation", _add_indentation)
+
+
+def _get_page_hiding_code(pages_to_hide: list[str]) -> str:
+    styling = ""
+    current_pages = get_pages("")
+    section_hidden = False
+    for idx, val in enumerate(current_pages.values()):
+        page_name = val.get("page_name")
+        if val.get("is_section"):
+            # Set whole section as hidden
+            section_hidden = page_name in pages_to_hide
+        elif not val.get("in_section"):
+            # Reset whole section hiding if we hit a page thats not in a section
+            section_hidden = False
+        if page_name in pages_to_hide or section_hidden:
+            styling += f"""
+                li:nth-child({idx + 1}) {{
+                    display: none;
+                }}
+            """
+
+    styling = f"""
+        <style>
+            {styling}
+        </style>
+    """
+
+    return styling
+
+
+def _hide_pages(hidden_pages: list[str]):
+    """
+    For an app that wants to dynmically hide specific pages from the navigation bar.
+    Note - this simply uses CSS to hide the menu item, it does not remove the page
+    If using this with any security / permissions in mind,
+    you also need to block the hidden page from executing
+    """
+
+    styling = _get_page_hiding_code(hidden_pages)
+
+    st.write(
+        styling,
+        unsafe_allow_html=True,
+    )
+
+
+hide_pages = _gather_metrics("st_pages.hide_pages", _hide_pages)

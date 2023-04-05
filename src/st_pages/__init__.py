@@ -48,7 +48,7 @@ from streamlit.util import calc_md5
 def _add_page_title(
     add_icon: bool = True,
     also_indent: bool = True,
-    hidden_pages: list[str] = [],
+    hidden_pages: list[str] | None = None,
     **kwargs,
 ):
     """
@@ -94,7 +94,8 @@ def _add_page_title(
 
         if also_indent:
             add_indentation()
-        if len(hidden_pages) > 0:
+
+        if hidden_pages:
             hide_pages(hidden_pages)
 
 

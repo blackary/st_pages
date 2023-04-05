@@ -83,6 +83,8 @@ show_pages(
         Section("My section", icon="🎈️"),
         # Pages after a section will be indented
         Page("Another page", icon="💪"),
+        # Unless you explicitly say in_section=False
+        Page("Not in a section", in_section=False)
     ]
 )
 ```
@@ -125,6 +127,11 @@ is_section = true
 [[pages]]
 name = "Another page"
 icon = "💪"
+
+# Unless you explicitly say in_section = false`
+[[pages]]
+name = "Not in a section"
+in_section = false
 ```
 
 Streamlit code:

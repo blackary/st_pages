@@ -22,7 +22,8 @@ with st.echo("below"):
             # Will use the default icon and name based on the filename if you don't
             # pass them
             Page("example_app/example_three.py"),
-            Page("example_app/example_five.py", "Example Five", "🧰"),
+            # You can also pass in_section=False to a page to make it un-indented
+            Page("example_app/example_five.py", "Example Five", "🧰", in_section=False),
         ]
     )
 

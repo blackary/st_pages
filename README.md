@@ -83,6 +83,8 @@ show_pages(
         Section("My section", icon="🎈️"),
         # Pages after a section will be indented
         Page("Another page", icon="💪"),
+        # Unless you explicitly say in_section=False
+        Page("Not in a section", in_section=False)
     ]
 )
 ```
@@ -125,6 +127,11 @@ is_section = true
 [[pages]]
 name = "Another page"
 icon = "💪"
+
+# Unless you explicitly say in_section = false`
+[[pages]]
+name = "Not in a section"
+in_section = false
 ```
 
 Streamlit code:
@@ -138,3 +145,10 @@ add_page_title()
 
 show_pages_from_config()
 ```
+
+# Hiding pages
+
+You can now pass a list of page names to `hide_pages` to hide pages dynamically for each
+user. Note that these pages are only hidden via CSS, and can still be visited by the URL.
+However, this could be a good option if you simply want a way to visually direct your
+user where they should be able to go next.

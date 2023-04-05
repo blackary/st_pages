@@ -80,3 +80,66 @@ def test_deprecation_warning(page: Page):
     expect(
         page.get_by_text("st.experimental_singleton is deprecated")
     ).not_to_be_visible()
+
+
+def test_in_section_false(page: Page):
+    bbox_not_in_section = (
+        page.get_by_role("link", name="Example Five")
+        .get_by_text("Example Five")
+        .bounding_box()
+    )
+    bbox_in_section = (
+        page.get_by_role("link", name="Example Four")
+        .get_by_text("Example Four")
+        .bounding_box()
+    )
+
+    assert bbox_in_section is not None
+    assert bbox_not_in_section is not None
+
+    # Check that the in_section=False page is at least 10 pixels to the left of the
+    # in_section=True page
+    assert bbox_not_in_section["x"] < bbox_in_section["x"] - 10
+
+
+def test_page_hiding(page: Page):
+    page.get_by_role("link", name="Example Four").click()
+    expect(page.get_by_role("link", name="Example one")).to_be_visible()
+    expect(page.get_by_role("link", name="Example two")).to_be_visible()
+    expect(
+        page.get_by_test_id("stSidebarNav")
+        .locator("div")
+        .filter(has_text="🐴Other apps")
+    ).to_be_visible()
+    expect(page.get_by_role("link", name="Other apps")).to_be_visible()
+    expect(page.get_by_role("link", name="Example three")).to_be_visible()
+
+    page.get_by_text("Hide pages 1 and 2").click()
+    expect(page.get_by_role("link", name="Example one")).to_be_hidden()
+    expect(page.get_by_role("link", name="Example two")).to_be_hidden()
+    expect(
+        page.get_by_test_id("stSidebarNav")
+        .locator("div")
+        .filter(has_text="🐴Other apps")
+    ).to_be_visible()
+    expect(page.get_by_role("link", name="Example three")).to_be_visible()
+
+    page.get_by_text("Hide Other apps Section").click()
+    expect(page.get_by_role("link", name="Example one")).to_be_visible()
+    expect(page.get_by_role("link", name="Example two")).to_be_visible()
+    expect(
+        page.get_by_test_id("stSidebarNav")
+        .locator("div")
+        .filter(has_text="🐴Other apps")
+    ).to_be_hidden()
+    expect(page.get_by_role("link", name="Example three")).to_be_hidden()
+
+    page.get_by_text("Show all pages").click()
+    expect(page.get_by_role("link", name="Example one")).to_be_visible()
+    expect(page.get_by_role("link", name="Example two")).to_be_visible()
+    expect(
+        page.get_by_test_id("stSidebarNav")
+        .locator("div")
+        .filter(has_text="🐴Other apps")
+    ).to_be_visible()
+    expect(page.get_by_role("link", name="Example three")).to_be_visible()

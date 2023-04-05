@@ -35,3 +35,4 @@ path = "example_app/example_three.py"
 path = "example_app/example_five.py"
 name = "Example Five"
 icon = "🧰"
+in_section = false

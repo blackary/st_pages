@@ -296,7 +296,7 @@ def _get_indentation_code() -> str:
     for idx, val in enumerate(current_pages.values()):
         if val.get("is_section"):
             styling += f"""
-                li:nth-child({idx + 1}) a {{
+                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1}) a {{
                     pointer-events: none; /* Disable clicking on section header */
                 }}
             """
@@ -308,7 +308,7 @@ def _get_indentation_code() -> str:
         elif is_indented:
             # Unless specifically unnested, indent all pages that aren't section headers
             styling += f"""
-                li:nth-child({idx + 1}) span:nth-child(1) {{
+                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1}) span:nth-child(1) {{
                     margin-left: 1.5rem;
                 }}
             """
@@ -361,7 +361,7 @@ def _get_page_hiding_code(pages_to_hide: list[str]) -> str:
             section_hidden = False
         if page_name in pages_to_hide or section_hidden:
             styling += f"""
-                li:nth-child({idx + 1}) {{
+                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1}) {{
                     display: none;
                 }}
             """

@@ -143,3 +143,10 @@ def test_page_hiding(page: Page):
         .filter(has_text="🐴Other apps")
     ).to_be_visible()
     expect(page.get_by_role("link", name="Example three")).to_be_visible()
+
+
+def test_selectbox(page: Page):
+    page.get_by_role("link", name="Example Four").click()
+    page.get_by_text("Hide pages 1 and 2").click()
+    page.get_by_text("test_select1open").click()
+    expect(page.get_by_role("option", name="2")).to_be_visible()

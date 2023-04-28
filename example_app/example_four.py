@@ -17,3 +17,5 @@ elif selection == "Hide pages 1 and 2":
     hide_pages(["Example One", "Example Two"])
 elif selection == "Hide Other apps Section":
     hide_pages(["Other apps"])
+
+st.selectbox("test_select", options=["1", "2", "3"])

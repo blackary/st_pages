@@ -17,6 +17,8 @@ import requests
 import streamlit as st
 from streamlit.commands.page_config import get_random_emoji
 from streamlit.errors import StreamlitAPIException
+from streamlit import runtime
+from streamlit.watcher import LocalSourcesWatcher
 
 try:
     from streamlit.runtime.scriptrunner import get_script_run_ctx
@@ -229,13 +231,11 @@ def _show_pages(pages: list[Page]):
         current_pages[page.page_hash] = page.to_dict()
 
     _on_pages_changed.send()
-    from streamlit import runtime
-    from streamlit.watcher import LocalSourcesWatcher
     rt = runtime.get_instance()
     rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
     rt._sources_watcher.register_file_change_callback(
         lambda _: rt._script_cache.clear()
-    )        
+    )
 
 
 show_pages = _gather_metrics("st_pages.show_pages", _show_pages)

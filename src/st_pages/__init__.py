@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -181,7 +181,7 @@ class Page:
             "page_script_hash": self.page_hash,
             "page_name": self.page_name,
             "icon": self.page_icon,
-            "script_path": str(self.page_path),
+            "script_path": str(os.path.abspath(self.page_path)),
             "is_section": self.is_section,
             "in_section": self.in_section,
             "relative_page_hash": self.relative_page_hash,
@@ -229,6 +229,13 @@ def _show_pages(pages: list[Page]):
         current_pages[page.page_hash] = page.to_dict()
 
     _on_pages_changed.send()
+    from streamlit import runtime
+    from streamlit.watcher import LocalSourcesWatcher
+    rt = runtime.get_instance()
+    rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
+    rt._sources_watcher.register_file_change_callback(
+        lambda _: rt._script_cache.clear()
+    )        
 
 
 show_pages = _gather_metrics("st_pages.show_pages", _show_pages)

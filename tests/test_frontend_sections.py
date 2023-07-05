@@ -83,6 +83,7 @@ def test_deprecation_warning(page: Page):
 
 
 def test_in_section_false(page: Page):
+    sleep(0.5)
     bbox_not_in_section = (
         page.get_by_role("link", name="Example Five")
         .get_by_text("Example Five")

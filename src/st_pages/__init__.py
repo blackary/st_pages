@@ -62,43 +62,46 @@ def _add_page_title(
     pages = get_pages("")
     ctx = get_script_run_ctx()
 
-    if ctx is not None:
+    if ctx is None:
+        return
+
+    try:
+        current_page = pages[ctx.page_script_hash]
+    except KeyError:
         try:
-            current_page = pages[ctx.page_script_hash]
-        except KeyError:
-            try:
-                current_page = [
-                    p
-                    for p in pages.values()
-                    if p["relative_page_hash"] == ctx.page_script_hash
-                ][0]
-            except IndexError:
-                return
+            current_page = [
+                p
+                for p in pages.values()
+                if p["relative_page_hash"] == ctx.page_script_hash
+            ][0]
+        except IndexError:
+            return
 
-        if "page_title" not in kwargs:
-            kwargs["page_title"] = current_page["page_name"]
+    if "page_title" not in kwargs:
+        kwargs["page_title"] = current_page["page_name"]
 
-        if "page_icon" not in kwargs:
-            kwargs["page_icon"] = current_page["icon"]
+    if "page_icon" not in kwargs:
+        kwargs["page_icon"] = current_page["icon"]
 
-        page_title = current_page["page_name"]
-        page_icon = current_page["icon"]
+    page_title = current_page["page_name"]
+    page_icon = current_page["icon"]
 
-        try:
-            st.set_page_config(**kwargs)
-        except StreamlitAPIException:
-            pass
+    try:
+        ctx._set_page_config_allowed = True
+        st.set_page_config(**kwargs)
+    except StreamlitAPIException:
+        pass
 
-        if add_icon:
-            st.title(f"{translate_icon(page_icon)} {page_title}")
-        else:
-            st.title(page_title)
+    if add_icon:
+        st.title(f"{translate_icon(page_icon)} {page_title}")
+    else:
+        st.title(page_title)
 
-        if also_indent:
-            add_indentation()
+    if also_indent:
+        add_indentation()
 
-        if hidden_pages:
-            hide_pages(hidden_pages)
+    if hidden_pages:
+        hide_pages(hidden_pages)
 
 
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
@@ -147,6 +150,7 @@ class Page:
     icon: str | None = None
     is_section: bool = False
     in_section: bool = True
+    use_relative_hash: bool = False
 
     @property
     def page_path(self) -> Path:
@@ -174,6 +178,8 @@ class Page:
 
     @property
     def page_hash(self) -> str:
+        if self.use_relative_hash:
+            return self.relative_page_hash
         if self.is_section:
             return calc_md5(f"{self.page_path}_{self.page_name}")
         return calc_md5(str(self.page_path.absolute()))
@@ -226,8 +232,13 @@ def _show_pages(pages: list[Page]):
         if page.is_section:
             page.path = default_page
 
+    first_page_hash = list(current_pages.keys())[0]
+
     current_pages.clear()
-    for page in pages:
+    for idx, page in enumerate(pages):
+        if idx == 0:
+            if page.relative_page_hash == first_page_hash:
+                page.use_relative_hash = True
         current_pages[page.page_hash] = page.to_dict()
 
     _on_pages_changed.send()
@@ -315,8 +326,9 @@ def _get_indentation_code() -> str:
         elif is_indented:
             # Unless specifically unnested, indent all pages that aren't section headers
             styling += f"""
-                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1}) span:nth-child(1) {{
-                    margin-left: 1.5rem;
+                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1})
+                    span:nth-child(1) {{
+                        margin-left: 1.5rem;
                 }}
             """
 

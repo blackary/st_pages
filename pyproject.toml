@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "st-pages"
-version = "0.4.1"
+version = "0.4.3"
 description = "An experimental version of Streamlit Multi-Page Apps"
 authors = ["Zachary Blackwood <zachary@streamlit.io>"]
 readme = "README.md"
@@ -24,10 +24,13 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 
-[tool.isort]
-profile = "black"
-line_length = 88
-skip = ["./.venv", "./direnv", ".env"]
+[tool.ruff]
+line-length = 88
+select = [
+    "E",
+    "F",
+    "I001",
+]
 
 [tool.black]
 exclude = '''

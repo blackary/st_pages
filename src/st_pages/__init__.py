@@ -244,7 +244,7 @@ def _show_pages(pages: list[Page]):
 
     _on_pages_changed.send()
 
-    sleep(0.1)  # Not sure why this is needed, but it seems to be.
+    sleep(0.5)  # Not sure why this is needed, but it seems to be.
 
     rt = runtime.get_instance()
     rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)

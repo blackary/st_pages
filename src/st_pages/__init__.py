@@ -326,8 +326,9 @@ def _get_indentation_code() -> str:
         elif is_indented:
             # Unless specifically unnested, indent all pages that aren't section headers
             styling += f"""
-                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1}) span:nth-child(1) {{
-                    margin-left: 1.5rem;
+                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1})
+                    span:nth-child(1) {{
+                        margin-left: 1.5rem;
                 }}
             """
 

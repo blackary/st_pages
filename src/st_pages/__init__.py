@@ -244,13 +244,15 @@ def _show_pages(pages: list[Page]):
 
     _on_pages_changed.send()
 
-    sleep(0.5)  # Not sure why this is needed, but it seems to be.
-
     rt = runtime.get_instance()
-    rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
-    rt._sources_watcher.register_file_change_callback(
-        lambda _: rt._script_cache.clear()
-    )
+
+    if hasattr(rt, "_script_cache"):
+        sleep(1)  # Not sure why this is needed, but it seems to be.
+
+        rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
+        rt._sources_watcher.register_file_change_callback(
+            lambda _: rt._script_cache.clear()
+        )
 
 
 show_pages = _gather_metrics("st_pages.show_pages", _show_pages)

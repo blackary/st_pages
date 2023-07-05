@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from time import sleep
 
 import toml
 
@@ -242,6 +243,9 @@ def _show_pages(pages: list[Page]):
         current_pages[page.page_hash] = page.to_dict()
 
     _on_pages_changed.send()
+
+    sleep(0.1)  # Not sure why this is needed, but it seems to be.
+
     rt = runtime.get_instance()
     rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
     rt._sources_watcher.register_file_change_callback(

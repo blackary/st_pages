@@ -1,5 +1,5 @@
 from __future__ import annotations
-import os
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -15,9 +15,9 @@ except ImportError:
 
 import requests
 import streamlit as st
+from streamlit import runtime
 from streamlit.commands.page_config import get_random_emoji
 from streamlit.errors import StreamlitAPIException
-from streamlit import runtime
 from streamlit.watcher import LocalSourcesWatcher
 
 try:
@@ -189,7 +189,7 @@ class Page:
             "page_script_hash": self.page_hash,
             "page_name": self.page_name,
             "icon": self.page_icon,
-            "script_path": str(os.path.abspath(self.page_path)),
+            "script_path": str(self.page_path.absolute()),
             "is_section": self.is_section,
             "in_section": self.in_section,
             "relative_page_hash": self.relative_page_hash,

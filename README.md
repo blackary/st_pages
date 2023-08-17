@@ -89,6 +89,24 @@ show_pages(
 )
 ```
 
+You can also create the list of pages dynamically and add an index to it:
+
+```python
+import os
+from st_pages import Page, show_pages
+
+# Specify folder containing pages
+pages_folder = "pages"
+
+# Get the alphabetically sorted filenames of the pages
+pages_filenames = sorted(os.listdir(pages_folder))
+
+# Create the page index dynamically
+show_pages(
+    [Page("app.py", "Home", "1")] + [Page(f"{pages_folder}/{page}", page[:-3], str(i+2)) for i, page in enumerate(pages_filenames)]
+)
+```
+
 ### Method two: declare pages inside of a config file
 
 Contents of `.streamlit/pages.toml`

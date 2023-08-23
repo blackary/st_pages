@@ -1,1 +1,2 @@
-st_pages>=0.4.0
+st_pages>=0.4.3
+streamlit>=1.25.0

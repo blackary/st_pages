@@ -10,7 +10,6 @@ packages = [{ include = "st_pages", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.9.7 || >3.9.7,<4.0"
 streamlit = ">=1.10.0"
-numpy = "^1.23.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.3"

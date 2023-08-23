@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from time import sleep
@@ -14,7 +15,6 @@ except ImportError:
         return func
 
 
-import requests
 import streamlit as st
 from streamlit import runtime
 from streamlit.commands.page_config import get_random_emoji
@@ -110,8 +110,8 @@ add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
 
 @cache_resource
 def get_icons() -> dict[str, str]:
-    url = "https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json"
-    return requests.get(url).json()
+    emoji_path = Path(__file__).parent / "emoji.json"
+    return json.loads(emoji_path.read_text())
 
 
 def translate_icon(icon: str) -> str:

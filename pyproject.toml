@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "st-pages"
-version = "0.4.3"
+version = "0.4.4"
 license = "MIT"
 description = "An experimental version of Streamlit Multi-Page Apps"
 authors = ["Zachary Blackwood <zachary@streamlit.io>"]

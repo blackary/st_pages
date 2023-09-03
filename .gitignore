@@ -12,6 +12,7 @@ ipython_config.py
 .envrc
 __pycache__
 .mypy_cache
+**/*.ipynb
 
 .tox/
 

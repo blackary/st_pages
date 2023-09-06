@@ -105,7 +105,7 @@ def _add_page_title(
 add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
 
 
-# @cache_resource
+@cache_resource
 def get_icons() -> dict[str, str]:
     emoji_path = Path(__file__).parent / "emoji.json"
     return json.loads(emoji_path.read_text(encoding="utf-8"))

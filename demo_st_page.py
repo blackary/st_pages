@@ -23,7 +23,7 @@ with st.echo("below"):
             Section(name="Other apps", icon=":horse:"),
             # Will use the default icon and name based on the filename if you don't pass them
             Page("pages/page_3.py"),
-            
+
             # You can also pass in_section=False to a page to make it un-indented
             Page("pages/page_5.py", "Page 五", "🧰", in_section=False),
         ]
@@ -32,21 +32,24 @@ with st.echo("below"):
     add_page_title()  # Optional method to add title and icon to current page
     # Also calls add_indentation() by default, which indents pages within a section
 
+TOML_CONFIG = ".streamlit/pages_sections.toml"
+if Path(TOML_CONFIG).exists():
 
-"## Alternative approach, using a config file"
+    "## Alternative approach, using a config file"
 
-"Contents of `.streamlit/pages_sections.toml`"
+    "Contents of `.streamlit/pages_sections.toml`"
 
-st.code(Path(".streamlit/pages_sections.toml").read_text(), language="toml")
+    st.code(Path(TOML_CONFIG).read_text(), language="toml")
 
-"Streamlit script:"
+    "Streamlit script:"
 
-with st.echo("below"):
-    from st_pages import show_pages_from_config
+    with st.echo("below"):
+        from st_pages import show_pages_from_config
 
-    show_pages_from_config(".streamlit/pages_sections.toml")
+        show_pages_from_config(TOML_CONFIG)
 
-"See more at https://github.com/blackary/st_pages"
+    "See more at https://github.com/blackary/st_pages"
+
 
 with st.expander("Show documentation"):
     from st_pages import add_indentation

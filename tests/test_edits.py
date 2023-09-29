@@ -64,6 +64,15 @@ st.write("This is just a sample page!")
 def before_test(page: Page):
     page.goto(f"localhost:{PORT}")
 
+    yield
+
+    TEST_TEXT = "THIS IS A TEST"
+
+    current_text = Path("example_app/example_one.py").read_text()
+
+    with Path("example_app/example_one.py").open("w") as f:
+        f.write(current_text.replace(f"\nst.write('{TEST_TEXT}')\n", ""))
+
 
 def test_page_update(page: Page):
     TEST_TEXT = "THIS IS A TEST"

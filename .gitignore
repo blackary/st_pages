@@ -18,3 +18,4 @@ __pycache__
 .streamlit/secrets.toml
 
 *.png
+.venv

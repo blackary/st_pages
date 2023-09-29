@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from time import sleep
 
 import toml
 
@@ -15,8 +16,10 @@ except ImportError:
 
 
 import streamlit as st
+from streamlit import runtime
 from streamlit.commands.page_config import get_random_emoji
 from streamlit.errors import StreamlitAPIException
+from streamlit.watcher import LocalSourcesWatcher
 
 try:
     from streamlit.runtime.scriptrunner import get_script_run_ctx
@@ -108,7 +111,7 @@ add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
 @cache_resource
 def get_icons() -> dict[str, str]:
     emoji_path = Path(__file__).parent / "emoji.json"
-    return json.loads(emoji_path.read_text())
+    return json.loads(emoji_path.read_text(encoding="utf-8"))
 
 
 def translate_icon(icon: str) -> str:
@@ -187,7 +190,7 @@ class Page:
             "page_script_hash": self.page_hash,
             "page_name": self.page_name,
             "icon": self.page_icon,
-            "script_path": str(self.page_path),
+            "script_path": str(self.page_path.absolute()),
             "is_section": self.is_section,
             "in_section": self.in_section,
             "relative_page_hash": self.relative_page_hash,
@@ -240,6 +243,16 @@ def _show_pages(pages: list[Page]):
         current_pages[page.page_hash] = page.to_dict()
 
     _on_pages_changed.send()
+
+    rt = runtime.get_instance()
+
+    if hasattr(rt, "_script_cache"):
+        sleep(1)  # Not sure why this is needed, but it seems to be.
+
+        rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
+        rt._sources_watcher.register_file_change_callback(
+            lambda _: rt._script_cache.clear()
+        )
 
 
 show_pages = _gather_metrics("st_pages.show_pages", _show_pages)

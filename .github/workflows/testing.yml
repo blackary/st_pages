@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
-          python -m pip install tox tox-gh-actions pytest-playwright
+          python -m pip install tox tox-gh-actions pytest-playwright pytest-rerunfailures
       - name: Install playwright dependencies
         run: |
           playwright install --with-deps

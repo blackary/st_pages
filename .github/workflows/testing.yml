@@ -29,3 +29,8 @@ jobs:
           playwright install --with-deps
       - name: Test with tox
         run: tox
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: screenshots
+          path: screenshot*.png

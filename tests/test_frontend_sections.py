@@ -84,6 +84,7 @@ def test_deprecation_warning(page: Page):
 
 def test_in_section_false(page: Page):
     sleep(0.5)
+    page.screenshot(path="screenshot_sections2.png")
     bbox_not_in_section = (
         page.get_by_role("link", name="Example Five")
         .get_by_text("Example Five")
@@ -100,7 +101,11 @@ def test_in_section_false(page: Page):
 
     # Check that the in_section=False page is at least 10 pixels to the left of the
     # in_section=True page
-    assert bbox_not_in_section["x"] < bbox_in_section["x"] - 10
+    try:
+        assert bbox_not_in_section["x"] < bbox_in_section["x"] - 10
+    except AssertionError as e:
+        page.screenshot(path="screenshot_sections3.png")
+        raise e
 
 
 def test_page_hiding(page: Page):

@@ -154,3 +154,16 @@ You can now pass a list of page names to `hide_pages` to hide pages dynamically 
 user. Note that these pages are only hidden via CSS, and can still be visited by the URL.
 However, this could be a good option if you simply want a way to visually direct your
 user where they should be able to go next.
+
+NOTE: You should only hide pages that have also been added to the sidebar already.
+
+```py
+show_pages(
+    [
+        Page("streamlit_app.py", "Home", "🏠"),
+        Page("another.py", "Another page"),
+    ]
+)
+
+hide_pages(["Another page"])
+```

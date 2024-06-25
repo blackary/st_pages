@@ -16,7 +16,14 @@ def test_page():
 
 
 def test_page_icon():
-    from st_pages import Page, translate_icon
+    from st_pages import Page
 
     page = Page("tests/test_streamlit_pages.py", icon=":dog:")
-    assert translate_icon(page.icon) == "🐶"
+    assert page.icon == "🐶"
+
+
+def test_material_icon():
+    from st_pages import Page
+
+    page = Page("tests/test_streamlit_pages.py", icon=":material/refresh:")
+    assert page.icon == ":material/refresh:"

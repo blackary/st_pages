@@ -74,13 +74,15 @@ def test_page_hiding(page: Page):
     expect(page.get_by_role("link", name="example three")).to_be_visible()
     expect(page.get_by_role("link", name="Example Five")).to_be_visible()
     page.get_by_text("Hide pages 2 and").click()
-    expect(page.get_by_role("link", name="example three")).to_be_visible()
-    expect(page.get_by_role("link", name="Example Five")).not_to_be_visible()
+    expect(page.get_by_role("link", name="Example two")).not_to_be_visible()
+    expect(page.get_by_role("link", name="example three")).not_to_be_visible()
+    expect(page.get_by_role("link", name="Example Five")).to_be_visible()
 
     # Make sure the change is permanent
     page.get_by_role("link", name="st-pages").click()
+    expect(page.get_by_role("link", name="Example two")).not_to_be_visible()
     expect(page.get_by_role("link", name="example three")).not_to_be_visible()
-    expect(page.get_by_role("link", name="Example Five")).not_to_be_visible()
+    expect(page.get_by_role("link", name="Example Five")).to_be_visible()
 
     # Make sure the change can be undone
     page.get_by_role("link", name="Try hiding pages").click()

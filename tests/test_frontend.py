@@ -1,3 +1,4 @@
+import re
 from contextlib import contextmanager
 from time import sleep
 
@@ -89,3 +90,9 @@ def test_page_hiding(page: Page):
     page.get_by_text("Show all pages").click()
     expect(page.get_by_role("link", name="example three")).to_be_visible()
     expect(page.get_by_role("link", name="Example Five")).to_be_visible()
+
+
+def test_custom_url(page: Page):
+    page.get_by_role("link", name="Example Five").click()
+
+    expect(page).to_have_url(re.compile(r".*/a_very_long_page_title"))

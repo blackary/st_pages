@@ -56,6 +56,7 @@ icon = "🏠"
 path = "other_pages/page2.py"
 name = "Page 2"
 icon = ":books:"
+url_path = "my_books" # You can override the default url path for a page
 ```
 
 Example with sections:

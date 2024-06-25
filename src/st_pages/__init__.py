@@ -82,7 +82,12 @@ def _get_nav_from_toml(
             if current_section not in pages_data:
                 pages_data[current_section] = []
             pages_data[current_section].append(
-                st.Page(page.path, title=page.name, icon=translate_icon(page.icon))
+                st.Page(
+                    page.path,
+                    title=page.name,
+                    icon=translate_icon(page.icon),
+                    url_path=page.url_path,
+                )
             )
 
         for section in sections_to_drop:
@@ -92,7 +97,12 @@ def _get_nav_from_toml(
 
         for page in pages:
             pages_data.append(
-                st.Page(page.path, title=page.name, icon=translate_icon(page.icon))
+                st.Page(
+                    page.path,
+                    title=page.name,
+                    icon=translate_icon(page.icon),
+                    url_path=page.url_path,
+                )
             )
 
     return pages_data
@@ -135,6 +145,7 @@ class Page:
     name: str | None = None
     icon: str | None = None
     is_section: bool = False
+    url_path: str | None = None
 
     def __post_init__(self):
         _icon, _name = page_icon_and_name(Path(self.path))
@@ -146,8 +157,10 @@ class Page:
 
 
 class Section(Page):
-    def __init__(self, name: str, icon: str | None = None):
-        super().__init__(path="", name=name, icon=icon, is_section=True)
+    def __init__(self, name: str, icon: str | None = None, url_path: str | None = None):
+        super().__init__(
+            path="", name=name, icon=icon, is_section=True, url_path=url_path
+        )
 
 
 def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> list[Page] | None:

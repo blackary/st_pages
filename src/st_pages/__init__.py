@@ -123,34 +123,10 @@ add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
 
 @dataclass
 class Page:
-    """
-    Utility class for working with pages
-
-    Parameters
-    ----------
-    path: str
-        The path to the page
-    name: str (optional)
-        The name of the page. If not provided, the name will be inferred from
-        the path
-    icon: str (optional)
-        The icon of the page. If not provided, the icon will be inferred from
-        the path
-    """
-
     path: str
     name: str | None = None
     icon: str | None = None
     is_section: bool = False
-
-    @classmethod
-    def from_dict(cls, page_dict: dict[str, str | bool]) -> Page:
-        return cls(
-            path=str(page_dict["script_path"]),
-            name=str(page_dict["page_name"]),
-            icon=str(page_dict["icon"]),
-            is_section=bool(page_dict["is_section"]),
-        )
 
 
 class Section(Page):

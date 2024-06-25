@@ -6,6 +6,7 @@ from pathlib import Path
 from time import sleep
 
 import toml
+from packaging.version import Version
 
 try:
     from streamlit import _gather_metrics  # type: ignore
@@ -249,10 +250,13 @@ def _show_pages(pages: list[Page]):
     if hasattr(rt, "_script_cache"):
         sleep(1)  # Not sure why this is needed, but it seems to be.
 
-        rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
-        rt._sources_watcher.register_file_change_callback(
-            lambda _: rt._script_cache.clear()
-        )
+        try:
+            rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
+            rt._sources_watcher.register_file_change_callback(
+                lambda _: rt._script_cache.clear()
+            )
+        except AttributeError:
+            pass
 
 
 show_pages = _gather_metrics("st_pages.show_pages", _show_pages)
@@ -331,9 +335,16 @@ def _get_indentation_code() -> str:
             is_indented = False
         elif is_indented:
             # Unless specifically unnested, indent all pages that aren't section headers
+            # Tweak the styling for streamlit >= 1.36.0
+            st_version_string = st.__version__
+
+            extra_selector = "span:nth-child(1)"
+            if Version(st_version_string) >= Version("1.36.0"):
+                extra_selector = "a > span:first-child"
+
             styling += f"""
                 div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1})
-                    span:nth-child(1) {{
+                    {extra_selector} {{
                         margin-left: 1.5rem;
                 }}
             """

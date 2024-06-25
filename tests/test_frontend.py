@@ -41,14 +41,14 @@ def run_streamlit():
 
 
 @pytest.fixture(scope="module", autouse=True)
-def before_module():
+def _before_module():
     # Run the streamlit app before each module
     with run_streamlit():
         yield
 
 
-@pytest.fixture(scope="function", autouse=True)
-def before_test(page: Page):
+@pytest.fixture(autouse=True)
+def _before_test(page: Page):
     page.goto(f"localhost:{PORT}")
 
 

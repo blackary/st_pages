@@ -9,14 +9,14 @@ icon = ":pig:"
 is_section = true
 
 [[pages]]
-path = "example_four.py"
-name = "Example Four"
-icon = "📖"
-
-[[pages]]
 path = "example_two.py"
 name = "Example Two"
 icon = ":material/history:"
+
+[[pages]]
+path = "example_four.py"
+name = "Try hiding pages"
+icon = "📖"
 
 [[pages]]
 name = "Other apps"
@@ -30,4 +30,3 @@ path = "example_three.py"
 path = "example_five.py"
 name = "Example Five"
 icon = "🧰"
-in_section = false

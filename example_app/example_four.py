@@ -3,16 +3,26 @@ from st_pages import hide_pages
 
 st.write("This is just a sample page!")
 
-selection = st.radio(
-    "Test page hiding",
-    ["Show all pages", "Hide pages 1 and 2", "Hide Other apps Section"],
-)
+options = ["Show all pages", "Hide pages 2 and 5", "Hide Other apps Section"]
+
+if (
+    "_pages_hidden" in st.session_state
+    or "hide_pages_selection" not in st.session_state
+):
+    selection = st.radio("Test page hiding", options, key="_pages_hidden")
+else:
+    index = options.index(st.session_state["hide_pages_selection"])
+    selection = st.radio("Test page hiding", options, index=index, key="_pages_hidden")
 
 if selection == "Show all pages":
     hide_pages([])
-elif selection == "Hide pages 1 and 2":
-    hide_pages(["Example One", "Example Two"])
+elif selection == "Hide pages 2 and 5":
+    hide_pages(["Example Two", "Example Five"])
 elif selection == "Hide Other apps Section":
     hide_pages(["Other apps"])
 
-st.selectbox("test_select", options=["1", "2", "3"])
+st.session_state["hide_pages_selection"] = selection
+
+st.write(
+    "See another dynamic page example in the Streamlit docs [here](https://docs.streamlit.io/develop/tutorials/multipage/dynamic-navigation)"
+)

@@ -42,56 +42,13 @@ for more information.
 
 ## How to use
 
-### Method one: declare pages inside your streamlit code
-
-```python
-from st_pages import Page, show_pages, add_page_title
-
-# Optional -- adds the title and icon to the current page
-add_page_title()
-
-# Specify what pages should be shown in the sidebar, and what their titles and icons
-# should be
-show_pages(
-    [
-        Page("streamlit_app.py", "Home", "🏠"),
-        Page("other_pages/page2.py", "Page 2", ":books:"),
-    ]
-)
-```
-
-If you want to organize your pages into sections with indention showing which pages
-belong to which section, you can do the following:
-
-```python
-from st_pages import Page, Section, show_pages, add_page_title
-
-# Either this or add_indentation() MUST be called on each page in your
-# app to add indendation in the sidebar
-add_page_title()
-
-# Specify what pages should be shown in the sidebar, and what their titles and icons
-# should be
-show_pages(
-    [
-        Page("streamlit_app.py", "Home", "🏠"),
-        Page("other_pages/page2.py", "Page 2", ":books:"),
-        Section("My section", icon="🎈️"),
-        # Pages after a section will be indented
-        Page("Another page", icon="💪"),
-        # Unless you explicitly say in_section=False
-        Page("Not in a section", in_section=False)
-    ]
-)
-```
-
-### Method two: declare pages inside of a config file
+### Declare pages inside of a toml file
 
 Contents of `.streamlit/pages.toml`
 
 ```toml
 [[pages]]
-path = "streamlit_app.py"
+path = "page1.py"
 name = "Home"
 icon = "🏠"
 
@@ -105,7 +62,7 @@ Example with sections:
 
 ```toml
 [[pages]]
-path = "streamlit_app.py"
+path = "page1.py"
 name = "Home"
 icon = "🏠"
 
@@ -115,7 +72,7 @@ name = "Page 2"
 icon = ":books:"
 
 [[pages]]
-name = "My second"
+name = "My section"
 icon = "🎈️"
 is_section = true
 
@@ -123,41 +80,36 @@ is_section = true
 [[pages]]
 name = "Another page"
 icon = "💪"
-
-# Unless you explicitly say in_section = false`
-[[pages]]
-name = "Not in a section"
-in_section = false
 ```
 
 Streamlit code:
 
 ```python
-from st_pages import show_pages_from_config, add_page_title
+import streamlit as st
+from st_pages import add_page_title, get_nav_from_toml
 
-# Either this or add_indentation() MUST be called on each page in your
-# app to add indendation in the sidebar
-add_page_title()
+nav = get_nav_from_toml(".streamlit/pages_sections.toml")
 
-show_pages_from_config()
+st.logo("logo.png")
+
+pg = st.navigation(nav)
+
+add_page_title(pg, layout="wide")
+
+pg.run()
 ```
 
 # Hiding pages
 
-You can now pass a list of page names to `hide_pages` to hide pages dynamically for each
-user. Note that these pages are only hidden via CSS, and can still be visited by the URL.
-However, this could be a good option if you simply want a way to visually direct your
-user where they should be able to go next.
+You can now pass a list of page names to `hide_pages` to hide pages from now on.
+
+This list of pages is custom to each viewer of the app, so you can hide pages
+from one viewer but not from another using this method. You can see another example of
+hiding pages in the docs [here](https://docs.streamlit.io/develop/tutorials/multipage/dynamic-navigation)
 
 NOTE: You should only hide pages that have also been added to the sidebar already.
-
 ```py
-show_pages(
-    [
-        Page("streamlit_app.py", "Home", "🏠"),
-        Page("another.py", "Another page"),
-    ]
-)
+from st_pages import hide_pages
 
 hide_pages(["Another page"])
 ```

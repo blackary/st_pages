@@ -3,9 +3,9 @@
 [![Releases](https://img.shields.io/pypi/v/st-pages)](https://pypi.org/project/st-pages/)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/blackary/st_pages/testing.yml?branch=main)](https://github.com/blackary/st_pages/actions?query=workflow%3A%22testing%22+branch%3Amain)
 ![Python Versions](https://img.shields.io/pypi/pyversions/st_pages.svg)
-![Streamlit versions](https://img.shields.io/badge/streamlit-1.21.0--1.24.0-white.svg)
+![Streamlit versions](https://img.shields.io/badge/streamlit-1.36.0-white.svg)
 ![License](https://img.shields.io/github/license/blackary/st_pages)
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://st-pages.streamlit.app)
 
@@ -27,24 +27,18 @@ Example with sections: https://st-pages-sections.streamlit.app/
 
 ## Why st-pages?
 
-> Summary: st-pages allows you to set the page names, order, and icons (and optionally
-> group the pages into sections) in a multipage Streamlit app from your code without
-> having to rename the files.
+Previously, st-pages allowed for a much more customizable and flexible declaration of
+pages in a Streamlit app, and was independent of the actual filenames of the python
+files in your project.
 
-![image](https://user-images.githubusercontent.com/4040678/204576356-a436713f-93e4-41e3-82b9-6efeff744355.png)
+As of 1.0.0, st-pages is now a tiny wrapper that provides an easy method for defining
+the pages in your app in a toml file, as well as a few utility methods to let you
+add the current page's title to all pages, etc.
 
-Streamlit has native support for [multi-page apps](https://blog.streamlit.io/introducing-multipage-apps/)
-where page filenames are the source of truth for page settings. But, it's a bit annoying
-to have to change the filename to change the names in the sidebar or reorder the pages
-in your app. Even more, I really dislike having to put emojis in filenames.
-
-This is an experimental package to try out how page-management might work if
-you could name the pages whatever you wanted, and could manage which pages are visible,
-and how they appear in the sidebar, via a setup function.
-
-This enables you to set page _name_, _icon_ and _order_ independently of file name/path,
-while still retaining the same sidebar & url behavior of current streamlit multi-page
-apps.
+You are welcome to continue to use older versions of this package, but most of the
+old use-cases are now easy to do with native streamlit, so I would recommend
+checking out the [documentation](https://docs.streamlit.io/develop/concepts/multipage-apps/page-and-navigation)
+for more information.
 
 ## How to use
 

@@ -11,7 +11,7 @@ def test_page():
     from st_pages import Page
 
     page = Page("tests/test_streamlit_pages.py")
-    assert page.name == "Test Streamlit Pages"
+    assert page.name == "test_streamlit_pages"
     assert page.icon == ""
 
 

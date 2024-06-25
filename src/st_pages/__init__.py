@@ -9,6 +9,7 @@ import toml
 from streamlit import _gather_metrics  # type: ignore
 from streamlit.commands.page_config import get_random_emoji
 from streamlit.navigation.page import StreamlitPage
+from streamlit.source_util import page_icon_and_name
 
 
 @st.cache_resource
@@ -127,6 +128,14 @@ class Page:
     name: str | None = None
     icon: str | None = None
     is_section: bool = False
+
+    def __post_init__(self):
+        _icon, _name = page_icon_and_name(Path(self.path))
+        if self.icon is None:
+            self.icon = _icon
+        if self.name is None:
+            self.name = _name
+        self.icon = translate_icon(self.icon)
 
 
 class Section(Page):

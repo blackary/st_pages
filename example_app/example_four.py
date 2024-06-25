@@ -3,7 +3,7 @@ from st_pages import hide_pages
 
 st.write("This is just a sample page!")
 
-options = ["Show all pages", "Hide pages 2 and 5", "Hide Other apps Section"]
+options = ["Show all pages", "Hide pages 2 and 3", "Hide Other apps Section"]
 
 if (
     "_pages_hidden" in st.session_state
@@ -16,8 +16,8 @@ else:
 
 if selection == "Show all pages":
     hide_pages([])
-elif selection == "Hide pages 2 and 5":
-    hide_pages(["Example Two", "Example Five"])
+elif selection == "Hide pages 2 and 3":
+    hide_pages(["Example Two", "example three"])
 elif selection == "Hide Other apps Section":
     hide_pages(["Other apps"])
 

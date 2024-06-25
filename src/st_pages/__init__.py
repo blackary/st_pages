@@ -6,9 +6,9 @@ from pathlib import Path
 
 import streamlit as st
 import toml
-from streamlit import _gather_metrics  # type: ignore
 from streamlit.commands.page_config import get_random_emoji
 from streamlit.navigation.page import StreamlitPage
+from streamlit.runtime.metrics_util import gather_metrics
 from streamlit.source_util import page_icon_and_name
 
 
@@ -55,7 +55,11 @@ def _get_nav_from_toml(
     pages = [
         p
         for p in pages
-        if p.name not in st.session_state[HIDE_PAGES_KEY] or p.is_section
+        if (
+            p.name not in st.session_state[HIDE_PAGES_KEY]
+            and str(p.name).replace("_", " ") not in st.session_state[HIDE_PAGES_KEY]
+        )
+        or p.is_section
     ]
 
     has_sections = any(p.is_section for p in pages)
@@ -94,16 +98,19 @@ def _get_nav_from_toml(
     return pages_data
 
 
-get_nav_from_toml = _gather_metrics("st_pages.get_nav_from_toml", _get_nav_from_toml)
+get_nav_from_toml = gather_metrics("st_pages.get_nav_from_toml", _get_nav_from_toml)
 
 
-def hide_pages(pages: list[str]):
+def _hide_pages(pages: list[str]):
     if (
         HIDE_PAGES_KEY not in st.session_state
         or st.session_state[HIDE_PAGES_KEY] != pages
     ):
         st.session_state[HIDE_PAGES_KEY] = pages
         st.rerun()
+
+
+hide_pages = gather_metrics("st_pages.hide_pages", _hide_pages)
 
 
 def _add_page_title(page: StreamlitPage):
@@ -119,7 +126,7 @@ def _add_page_title(page: StreamlitPage):
     st.title(f"{page_icon} {page_title}" if page_icon else page_title)
 
 
-add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
+add_page_title = gather_metrics("st_pages.add_page_title", _add_page_title)
 
 
 @dataclass

@@ -88,13 +88,15 @@ Streamlit code:
 import streamlit as st
 from st_pages import add_page_title, get_nav_from_toml
 
+st.set_page_config(layout="wide")
+
 nav = get_nav_from_toml(".streamlit/pages_sections.toml")
 
 st.logo("logo.png")
 
 pg = st.navigation(nav)
 
-add_page_title(pg, layout="wide")
+add_page_title(pg)
 
 pg.run()
 ```
@@ -107,7 +109,6 @@ This list of pages is custom to each viewer of the app, so you can hide pages
 from one viewer but not from another using this method. You can see another example of
 hiding pages in the docs [here](https://docs.streamlit.io/develop/tutorials/multipage/dynamic-navigation)
 
-NOTE: You should only hide pages that have also been added to the sidebar already.
 ```py
 from st_pages import hide_pages
 

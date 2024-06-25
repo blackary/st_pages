@@ -49,11 +49,8 @@ def _before_module():
     with run_streamlit():
         yield
 
-    Path("example_app/example_one.py").write_text(
+    Path("example_app/example_two.py").write_text(
         """import streamlit as st
-from st_pages import add_page_title
-
-add_page_title(layout="wide")
 
 st.write("This is just a sample page!")
 """
@@ -68,17 +65,17 @@ def _before_test(page: Page):
 
     test_text = "THIS IS A TEST"
 
-    current_text = Path("example_app/example_one.py").read_text()
+    current_text = Path("example_app/example_two.py").read_text()
 
-    with Path("example_app/example_one.py").open("w") as f:
+    with Path("example_app/example_two.py").open("w") as f:
         f.write(current_text.replace(f"\nst.write('{test_text}')\n", ""))
 
 
 def test_page_update(page: Page):
     test_text = "THIS IS A TEST"
-    page.get_by_role("link", name="Example One").click()
+    page.get_by_role("link", name="Example Two").click()
 
-    expect(page).to_have_title("Example One")
+    expect(page).to_have_title("Example Two")
 
     page.screenshot(path="screenshot-edits0.png", full_page=True)
 
@@ -88,7 +85,7 @@ def test_page_update(page: Page):
         page.screenshot(path="screenshot-edits1.png", full_page=True)
         raise e
 
-    with Path("example_app/example_one.py").open("a") as f:
+    with Path("example_app/example_two.py").open("a") as f:
         f.write(f"\nst.write('{test_text}')\n")
 
     try:

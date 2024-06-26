@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{ include = "st_pages", from = "src" }]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.9.7 || >3.9.7,<4.0"
+python = ">=3.9,<3.9.7 || >3.9.7,<4.0"
 streamlit = ">=1.36.0"
 
 [tool.poetry.group.dev.dependencies]

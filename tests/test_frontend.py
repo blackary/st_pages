@@ -96,3 +96,15 @@ def test_custom_url(page: Page):
     page.get_by_role("link", name="Example Five").click()
 
     expect(page).to_have_url(re.compile(r".*/a_very_long_page_title"))
+
+
+def test_anchor_links(page: Page):
+    page.get_by_role("link", name="Example Two").click()
+
+    expect(page).to_have_title("Example Two")
+
+    page.get_by_role("heading", name="Example Two").hover()
+
+    page.get_by_test_id("stHeaderActionElements").get_by_role("link").click()
+
+    expect(page).to_have_title("Example Two")

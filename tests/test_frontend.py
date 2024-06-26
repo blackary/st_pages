@@ -1,3 +1,4 @@
+import re
 from contextlib import contextmanager
 from time import sleep
 
@@ -41,23 +42,25 @@ def run_streamlit():
 
 
 @pytest.fixture(scope="module", autouse=True)
-def before_module():
+def _before_module():
     # Run the streamlit app before each module
     with run_streamlit():
         yield
 
 
-@pytest.fixture(scope="function", autouse=True)
-def before_test(page: Page):
+@pytest.fixture(autouse=True)
+def _before_test(page: Page):
     page.goto(f"localhost:{PORT}")
+    # Toggle off sections mode
+    page.get_by_test_id("stCheckbox").locator("div").nth(1).click()
 
 
 def test_pages_available(page: Page):
-    expect(page.get_by_text("🏠 Home")).to_be_visible()
+    expect(page.get_by_text("📄 st-pages")).to_be_visible()
 
-    page.get_by_role("link", name="Example One").click()
+    page.get_by_role("link", name="Example Two").click()
 
-    expect(page).to_have_title("Example One")
+    expect(page).to_have_title("Example Two")
 
 
 def test_deprecation_warning(page: Page):
@@ -66,27 +69,42 @@ def test_deprecation_warning(page: Page):
     ).not_to_be_visible()
 
 
-def test_wide_mode(page: Page):
-    """
-    Make sure that the wide mode argument is working by comparing the x positions of the
-    "Example One" and "Example Two" headers. The "Example Two" header should be further
-    to the right than the "Example One" header. Currently it is 50px further to the
-    right, but 30 should be enough to catch any regressions.
-    """
-    page.get_by_role("link", name="Example One").click()
+def test_page_hiding(page: Page):
+    page.get_by_role("link", name="Try hiding pages").click()
 
-    bbox = page.get_by_text("📚 Example One").bounding_box()
+    expect(page.get_by_role("link", name="example three")).to_be_visible()
+    expect(page.get_by_role("link", name="Example Five")).to_be_visible()
+    page.get_by_text("Hide pages 2 and").click()
+    expect(page.get_by_role("link", name="Example two")).not_to_be_visible()
+    expect(page.get_by_role("link", name="example three")).not_to_be_visible()
+    expect(page.get_by_role("link", name="Example Five")).to_be_visible()
 
-    assert bbox is not None
+    # Make sure the change is permanent
+    page.get_by_role("link", name="st-pages").click()
+    expect(page.get_by_role("link", name="Example two")).not_to_be_visible()
+    expect(page.get_by_role("link", name="example three")).not_to_be_visible()
+    expect(page.get_by_role("link", name="Example Five")).to_be_visible()
 
-    wide_mode_x = bbox["x"]
+    # Make sure the change can be undone
+    page.get_by_role("link", name="Try hiding pages").click()
+    page.get_by_text("Show all pages").click()
+    expect(page.get_by_role("link", name="example three")).to_be_visible()
+    expect(page.get_by_role("link", name="Example Five")).to_be_visible()
 
+
+def test_custom_url(page: Page):
+    page.get_by_role("link", name="Example Five").click()
+
+    expect(page).to_have_url(re.compile(r".*/a_very_long_page_title"))
+
+
+def test_anchor_links(page: Page):
     page.get_by_role("link", name="Example Two").click()
 
-    bbox = page.get_by_text("✏️ Example Two").bounding_box()
+    expect(page).to_have_title("Example Two")
 
-    assert bbox is not None
+    page.get_by_role("heading", name="Example Two").hover()
 
-    regular_x = bbox["x"]
+    page.get_by_test_id("stHeaderActionElements").get_by_role("link").click()
 
-    assert (regular_x - wide_mode_x) > 30
+    expect(page).to_have_title("Example Two")

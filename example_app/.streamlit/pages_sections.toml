@@ -1,12 +1,7 @@
 [[pages]]
-path = "example_app/streamlit_app_sections.py"
-name = "Home"
-icon = ":house:"
-
-[[pages]]
-path = "example_app/example_one.py"
-name = "Example One"
-icon = ":books:"
+path = "example_one.py"
+name = "st-pages"
+icon = "📄"
 
 [[pages]]
 name = "Cool apps"
@@ -14,14 +9,14 @@ icon = ":pig:"
 is_section = true
 
 [[pages]]
-path = "example_app/example_four.py"
-name = "Example Four"
-icon = "📖"
+path = "example_two.py"
+name = "Example Two"
+icon = ":material/history:"
 
 [[pages]]
-path = "example_app/example_two.py"
-name = "Example Two"
-icon = "✏️"
+path = "example_four.py"
+name = "Try hiding pages"
+icon = "📖"
 
 [[pages]]
 name = "Other apps"
@@ -29,10 +24,10 @@ icon = ":horse:"
 is_section = true
 
 [[pages]]
-path = "example_app/example_three.py"
+path = "example_three.py"
 
 [[pages]]
-path = "example_app/example_five.py"
+path = "example_five.py"
 name = "Example Five"
 icon = "🧰"
-in_section = false
+url_path = "a_very_long_page_title"

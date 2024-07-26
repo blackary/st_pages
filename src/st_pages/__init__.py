@@ -3,263 +3,164 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from time import sleep
-
-import toml
-from packaging.version import Version
-
-try:
-    from streamlit import _gather_metrics  # type: ignore
-except ImportError:
-
-    def _gather_metrics(name, func, *args, **kwargs):
-        return func
-
 
 import streamlit as st
-from streamlit import runtime
+import toml
 from streamlit.commands.page_config import get_random_emoji
-from streamlit.errors import StreamlitAPIException
-from streamlit.watcher import LocalSourcesWatcher
-
-try:
-    from streamlit.runtime.scriptrunner import get_script_run_ctx
-except ImportError:
-    from streamlit.scriptrunner.script_run_context import (  # type: ignore
-        get_script_run_ctx,
-    )
-
-from streamlit.source_util import _on_pages_changed, get_pages
-
-try:
-    from streamlit.source_util import page_icon_and_name
-except ImportError:
-    from streamlit.source_util import page_name_and_icon  # type: ignore
-
-    def page_icon_and_name(script_path: Path) -> tuple[str, str]:
-        icon, name = page_name_and_icon(script_path)
-        return name, icon
+from streamlit.navigation.page import StreamlitPage
+from streamlit.runtime.metrics_util import gather_metrics
+from streamlit.source_util import page_icon_and_name
 
 
-try:
-    from streamlit import cache_resource
-except ImportError:
-    from streamlit import experimental_singleton as cache_resource
-
-from streamlit.util import calc_md5
-
-
-def _add_page_title(
-    add_icon: bool = True,
-    also_indent: bool = True,
-    hidden_pages: list[str] | None = None,
-    **kwargs,
-):
-    """
-    Adds the icon and page name to the page as an st.title, and also sets the
-    page title and favicon in the browser tab.
-
-    All **kwargs are passed to st.set_page_config
-    """
-    pages = get_pages("")
-    ctx = get_script_run_ctx()
-
-    if ctx is None:
-        return
-
-    try:
-        current_page = pages[ctx.page_script_hash]
-    except KeyError:
-        try:
-            current_page = [
-                p
-                for p in pages.values()
-                if p["relative_page_hash"] == ctx.page_script_hash
-            ][0]
-        except IndexError:
-            return
-
-    if "page_title" not in kwargs:
-        kwargs["page_title"] = current_page["page_name"]
-
-    if "page_icon" not in kwargs:
-        kwargs["page_icon"] = current_page["icon"]
-
-    page_title = current_page["page_name"]
-    page_icon = current_page["icon"]
-
-    try:
-        ctx._set_page_config_allowed = True
-        st.set_page_config(**kwargs)
-    except StreamlitAPIException:
-        pass
-
-    if add_icon:
-        st.title(f"{translate_icon(page_icon)} {page_title}")
-    else:
-        st.title(page_title)
-
-    if also_indent:
-        add_indentation()
-
-    if hidden_pages:
-        hide_pages(hidden_pages)
-
-
-add_page_title = _gather_metrics("st_pages.add_page_title", _add_page_title)
-
-
-@cache_resource
+@st.cache_resource
 def get_icons() -> dict[str, str]:
     emoji_path = Path(__file__).parent / "emoji.json"
     return json.loads(emoji_path.read_text(encoding="utf-8"))
 
 
-def translate_icon(icon: str) -> str:
+def translate_icon(icon: str | None) -> str | None:
     """
     If you pass a name of an icon, like :dog:, translate it into the
     corresponding unicode character
     """
+    if icon is None:
+        return None
+
     if icon == "random":
         icon = get_random_emoji()
-    elif icon.startswith(":") and icon.endswith(":"):
+    elif icon.startswith(":") and icon.endswith(":") and ":material/" not in icon:
         icon = icon[1:-1]
-        icons = get_icons()
-        if icon in icons:
-            return icons[icon]
+        icon = get_icons().get(icon, icon)
     return icon
+
+
+HIDE_PAGES_KEY = "_st_pages_pages_to_hide"
+
+
+def _get_nav_from_toml(
+    path: str = ".streamlit/pages.toml",
+) -> list[StreamlitPage] | dict[str, list[StreamlitPage]]:
+    """
+    Given a path to a TOML file, return a list or dictionary that can be passed to
+    st.navigation
+    """
+    pages = _get_pages_from_config(path)
+    if pages is None:
+        return []
+
+    if HIDE_PAGES_KEY not in st.session_state:
+        st.session_state[HIDE_PAGES_KEY] = []
+
+    # Filter out pages that are in the pages_to_hide list
+    pages = [
+        p
+        for p in pages
+        if (
+            p.name not in st.session_state[HIDE_PAGES_KEY]
+            and str(p.name).replace("_", " ") not in st.session_state[HIDE_PAGES_KEY]
+        )
+        or p.is_section
+    ]
+
+    has_sections = any(p.is_section for p in pages)
+
+    pages_data: dict[str, list[StreamlitPage]] | list[StreamlitPage] = []
+
+    if has_sections:
+        pages_data = {}
+
+        current_section = ""
+
+        sections_to_drop = []
+
+        for page in pages:
+            if page.is_section:
+                current_section = f"{translate_icon(page.icon)} {page.name}"
+                if page.name in st.session_state[HIDE_PAGES_KEY]:
+                    sections_to_drop.append(current_section)
+                continue
+            if current_section not in pages_data:
+                pages_data[current_section] = []
+            pages_data[current_section].append(
+                st.Page(
+                    page.path,
+                    title=page.name,
+                    icon=translate_icon(page.icon),
+                    url_path=page.url_path,
+                )
+            )
+
+        for section in sections_to_drop:
+            del pages_data[section]
+    else:
+        pages_data = []
+
+        for page in pages:
+            pages_data.append(
+                st.Page(
+                    page.path,
+                    title=page.name,
+                    icon=translate_icon(page.icon),
+                    url_path=page.url_path,
+                )
+            )
+
+    return pages_data
+
+
+get_nav_from_toml = gather_metrics("st_pages.get_nav_from_toml", _get_nav_from_toml)
+
+
+def _hide_pages(pages: list[str]):
+    if (
+        HIDE_PAGES_KEY not in st.session_state
+        or st.session_state[HIDE_PAGES_KEY] != pages
+    ):
+        st.session_state[HIDE_PAGES_KEY] = pages
+        st.rerun()
+
+
+hide_pages = gather_metrics("st_pages.hide_pages", _hide_pages)
+
+
+def _add_page_title(page: StreamlitPage):
+    """
+    Adds the icon and page name to the page as an st.title.
+    """
+    page_title = page.title
+    page_icon = translate_icon(page.icon)
+
+    if page_icon and "/" in page_icon:
+        page_icon = None
+
+    st.title(f"{page_icon} {page_title}" if page_icon else page_title)
+
+
+add_page_title = gather_metrics("st_pages.add_page_title", _add_page_title)
 
 
 @dataclass
 class Page:
-    """
-    Utility class for working with pages
-
-    Parameters
-    ----------
-    path: str
-        The path to the page
-    name: str (optional)
-        The name of the page. If not provided, the name will be inferred from
-        the path
-    icon: str (optional)
-        The icon of the page. If not provided, the icon will be inferred from
-        the path
-    """
-
     path: str
     name: str | None = None
     icon: str | None = None
     is_section: bool = False
-    in_section: bool = True
-    use_relative_hash: bool = False
+    url_path: str | None = None
 
-    @property
-    def page_path(self) -> Path:
-        return Path(str(self.path))
-
-    @property
-    def page_name(self) -> str:
-        standard_name = page_icon_and_name(self.page_path)[1]
-        standard_name = standard_name.replace("_", " ").title()
+    def __post_init__(self):
+        _icon, _name = page_icon_and_name(Path(self.path))
+        if self.icon is None:
+            self.icon = _icon
         if self.name is None:
-            return standard_name
-        return self.name
-
-    @property
-    def page_icon(self) -> str:
-        standard_icon = page_icon_and_name(self.page_path)[0]
-        icon = self.icon or standard_icon or ""
-        return translate_icon(icon)
-
-    @property
-    def relative_page_hash(self) -> str:
-        if self.is_section:
-            return calc_md5(f"{self.page_path}_{self.page_name}")
-        return calc_md5(str(self.page_path))
-
-    @property
-    def page_hash(self) -> str:
-        if self.use_relative_hash:
-            return self.relative_page_hash
-        if self.is_section:
-            return calc_md5(f"{self.page_path}_{self.page_name}")
-        return calc_md5(str(self.page_path.absolute()))
-
-    def to_dict(self) -> dict[str, str | bool]:
-        return {
-            "page_script_hash": self.page_hash,
-            "page_name": self.page_name,
-            "icon": self.page_icon,
-            "script_path": str(self.page_path.absolute()),
-            "is_section": self.is_section,
-            "in_section": self.in_section,
-            "relative_page_hash": self.relative_page_hash,
-        }
-
-    @classmethod
-    def from_dict(cls, page_dict: dict[str, str | bool]) -> Page:
-        return cls(
-            path=str(page_dict["script_path"]),
-            name=str(page_dict["page_name"]),
-            icon=str(page_dict["icon"]),
-            is_section=bool(page_dict["is_section"]),
-            in_section=bool(page_dict["in_section"]),
-        )
+            self.name = _name
+        self.icon = translate_icon(self.icon)
 
 
 class Section(Page):
-    def __init__(self, name: str, icon: str | None = None):
-        super().__init__(path="", name=name, icon=icon, is_section=True)
-
-
-def _show_pages(pages: list[Page]):
-    """
-    Given a list of Page objects, overwrite whatever pages are currently being
-    shown in the sidebar, and overwrite them with this new set of pages.
-
-    NOTE: This changes the list of pages globally, not just for the current user, so
-    it is not appropriate for dymaically changing the list of pages.
-    """
-    current_pages: dict[str, dict[str, str | bool]] = get_pages("")  # type: ignore
-    if set(current_pages.keys()) == set(p.page_hash for p in pages):
-        return
-
-    try:
-        default_page = [p.path for p in pages if p.path][0]
-    except IndexError:
-        raise ValueError("Must pass at least one page to show_pages")
-
-    for page in pages:
-        if page.is_section:
-            page.path = default_page
-
-    first_page_hash = list(current_pages.keys())[0]
-
-    current_pages.clear()
-    for idx, page in enumerate(pages):
-        if idx == 0:
-            if page.relative_page_hash == first_page_hash:
-                page.use_relative_hash = True
-        current_pages[page.page_hash] = page.to_dict()
-
-    _on_pages_changed.send()
-
-    rt = runtime.get_instance()
-
-    if hasattr(rt, "_script_cache"):
-        sleep(1)  # Not sure why this is needed, but it seems to be.
-
-        try:
-            rt._sources_watcher = LocalSourcesWatcher(rt._main_script_path)
-            rt._sources_watcher.register_file_change_callback(
-                lambda _: rt._script_cache.clear()
-            )
-        except AttributeError:
-            pass
-
-
-show_pages = _gather_metrics("st_pages.show_pages", _show_pages)
+    def __init__(self, name: str, icon: str | None = None, url_path: str | None = None):
+        super().__init__(
+            path="", name=name, icon=icon, is_section=True, url_path=url_path
+        )
 
 
 def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> list[Page] | None:
@@ -299,132 +200,3 @@ def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> list[Page] | 
             pages.append(Page(**page))  # type: ignore
 
     return pages
-
-
-def _show_pages_from_config(path: str = ".streamlit/pages.toml"):
-    """
-    Show the pages listed in the config file at the given path
-    (default: .streamlit/pages.toml)
-    """
-    pages = _get_pages_from_config(path)
-
-    if pages is not None:
-        show_pages(pages)
-
-
-show_pages_from_config = _gather_metrics(
-    "st_pages.show_pages_from_config", _show_pages_from_config
-)
-
-
-def _get_indentation_code() -> str:
-    styling = ""
-    current_pages = get_pages("")
-    is_indented = False
-    for idx, val in enumerate(current_pages.values()):
-        if val.get("is_section"):
-            styling += f"""
-                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1}) a {{
-                    pointer-events: none; /* Disable clicking on section header */
-                }}
-            """
-            is_indented = True
-        elif is_indented and not val.get("in_section"):
-            # Page is specifically unnested
-            # Un-indent all pages until next section
-            is_indented = False
-        elif is_indented:
-            # Unless specifically unnested, indent all pages that aren't section headers
-            # Tweak the styling for streamlit >= 1.36.0
-            st_version_string = st.__version__
-
-            extra_selector = "span:nth-child(1)"
-            if Version(st_version_string) >= Version("1.36.0"):
-                extra_selector = "a > span:first-child"
-
-            styling += f"""
-                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1})
-                    {extra_selector} {{
-                        margin-left: 1.5rem;
-                }}
-            """
-
-    styling = f"""
-        <style>
-            {styling}
-        </style>
-    """
-
-    return styling
-
-
-def _add_indentation():
-    """
-    For an app that has set one or more "sections", this will add indentation
-    to the files "within" a section, and make the sections itself
-    unclickable. Makes the sidebar look like something like this:
-
-    - page 1
-    - section 1
-        - page 2
-        - page 3
-    - section 2
-        - page 4
-    """
-
-    styling = _get_indentation_code()
-
-    st.write(
-        styling,
-        unsafe_allow_html=True,
-    )
-
-
-add_indentation = _gather_metrics("st_pages.add_indentation", _add_indentation)
-
-
-def _get_page_hiding_code(pages_to_hide: list[str]) -> str:
-    styling = ""
-    current_pages = get_pages("")
-    section_hidden = False
-    for idx, val in enumerate(current_pages.values()):
-        page_name = val.get("page_name")
-        if val.get("is_section"):
-            # Set whole section as hidden
-            section_hidden = page_name in pages_to_hide
-        elif not val.get("in_section"):
-            # Reset whole section hiding if we hit a page thats not in a section
-            section_hidden = False
-        if page_name in pages_to_hide or section_hidden:
-            styling += f"""
-                div[data-testid=\"stSidebarNav\"] li:nth-child({idx + 1}) {{
-                    display: none;
-                }}
-            """
-
-    styling = f"""
-        <style>
-            {styling}
-        </style>
-    """
-
-    return styling
-
-
-def _hide_pages(hidden_pages: list[str]):
-    """
-    For an app that wants to dynmically hide specific pages from the navigation bar.
-    Note - this simply uses CSS to hide the menu item, it does not remove the page
-    If using this with any security / permissions in mind,
-    you also need to block the hidden page from executing
-    """
-
-    styling = _get_page_hiding_code(hidden_pages)
-
-    st.write(
-        styling,
-        unsafe_allow_html=True,
-    )
-
-
-hide_pages = _gather_metrics("st_pages.hide_pages", _hide_pages)

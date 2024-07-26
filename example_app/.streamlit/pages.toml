@@ -1,27 +1,23 @@
 [[pages]]
-path = "example_app/streamlit_app.py"
-name = "Home"
-icon = ":house:"
+path = "example_one.py"
+name = "st-pages"
+icon = "📄"
 
 [[pages]]
-path = "example_app/example_one.py"
-name = "Example One"
-icon = ":books:"
+path = "example_two.py"
+name = "Example Two"
+icon = ":material/history:"
 
 [[pages]]
-path = "example_app/example_four.py"
-name = "Example Four"
+path = "example_four.py"
+name = "Try hiding pages"
 icon = "📖"
 
 [[pages]]
-path = "example_app/example_two.py"
-name = "Example Two"
-icon = "✏️"
+path = "example_three.py"
 
 [[pages]]
-path = "example_app/example_three.py"
-
-[[pages]]
-path = "example_app/example_five.py"
+path = "example_five.py"
 name = "Example Five"
 icon = "🧰"
+url_path = "a_very_long_page_title"

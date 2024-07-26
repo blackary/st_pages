@@ -9,15 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.11"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: abatilo/actions-poetry@v2
+      - uses: abatilo/actions-poetry@v3
         with:
           poetry-version: "1.5.1"
       - name: Install dependencies
@@ -26,10 +26,10 @@ jobs:
           python -m pip install tox tox-gh-actions pytest-playwright pytest-rerunfailures
       - name: Install playwright dependencies
         run: |
-          playwright install --with-deps
+          playwright install chromium --with-deps
       - name: Test with tox
         run: tox
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots

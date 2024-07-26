@@ -3,9 +3,9 @@
 [![Releases](https://img.shields.io/pypi/v/st-pages)](https://pypi.org/project/st-pages/)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/blackary/st_pages/testing.yml?branch=main)](https://github.com/blackary/st_pages/actions?query=workflow%3A%22testing%22+branch%3Amain)
 ![Python Versions](https://img.shields.io/pypi/pyversions/st_pages.svg)
-![Streamlit versions](https://img.shields.io/badge/streamlit-1.21.0--1.24.0-white.svg)
+![Streamlit versions](https://img.shields.io/badge/streamlit-1.36.0-white.svg)
 ![License](https://img.shields.io/github/license/blackary/st_pages)
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://st-pages.streamlit.app)
 
@@ -27,77 +27,28 @@ Example with sections: https://st-pages-sections.streamlit.app/
 
 ## Why st-pages?
 
-> Summary: st-pages allows you to set the page names, order, and icons (and optionally
-> group the pages into sections) in a multipage Streamlit app from your code without
-> having to rename the files.
+Previously, st-pages allowed for a much more customizable and flexible declaration of
+pages in a Streamlit app, and was independent of the actual filenames of the python
+files in your project.
 
-![image](https://user-images.githubusercontent.com/4040678/204576356-a436713f-93e4-41e3-82b9-6efeff744355.png)
+As of 1.0.0, st-pages is now a tiny wrapper that provides an easy method for defining
+the pages in your app in a toml file, as well as a few utility methods to let you
+add the current page's title to all pages, etc.
 
-Streamlit has native support for [multi-page apps](https://blog.streamlit.io/introducing-multipage-apps/)
-where page filenames are the source of truth for page settings. But, it's a bit annoying
-to have to change the filename to change the names in the sidebar or reorder the pages
-in your app. Even more, I really dislike having to put emojis in filenames.
-
-This is an experimental package to try out how page-management might work if
-you could name the pages whatever you wanted, and could manage which pages are visible,
-and how they appear in the sidebar, via a setup function.
-
-This enables you to set page _name_, _icon_ and _order_ independently of file name/path,
-while still retaining the same sidebar & url behavior of current streamlit multi-page
-apps.
+You are welcome to continue to use older versions of this package, but most of the
+old use-cases are now easy to do with native streamlit, so I would recommend
+checking out the [documentation](https://docs.streamlit.io/develop/concepts/multipage-apps/page-and-navigation)
+for more information.
 
 ## How to use
 
-### Method one: declare pages inside your streamlit code
-
-```python
-from st_pages import Page, show_pages, add_page_title
-
-# Optional -- adds the title and icon to the current page
-add_page_title()
-
-# Specify what pages should be shown in the sidebar, and what their titles and icons
-# should be
-show_pages(
-    [
-        Page("streamlit_app.py", "Home", "🏠"),
-        Page("other_pages/page2.py", "Page 2", ":books:"),
-    ]
-)
-```
-
-If you want to organize your pages into sections with indention showing which pages
-belong to which section, you can do the following:
-
-```python
-from st_pages import Page, Section, show_pages, add_page_title
-
-# Either this or add_indentation() MUST be called on each page in your
-# app to add indendation in the sidebar
-add_page_title()
-
-# Specify what pages should be shown in the sidebar, and what their titles and icons
-# should be
-show_pages(
-    [
-        Page("streamlit_app.py", "Home", "🏠"),
-        Page("other_pages/page2.py", "Page 2", ":books:"),
-        Section("My section", icon="🎈️"),
-        # Pages after a section will be indented
-        Page("Another page", icon="💪"),
-        # Unless you explicitly say in_section=False
-        Page("Not in a section", in_section=False)
-    ]
-)
-```
-
-### Method two: declare pages inside of a config file
+### Declare pages inside of a toml file
 
 Contents of `.streamlit/pages.toml`
 
 ```toml
 [[pages]]
-path = "streamlit_app.py"
+path = "page1.py"
 name = "Home"
 icon = "🏠"
 
@@ -105,13 +56,14 @@ icon = "🏠"
 path = "other_pages/page2.py"
 name = "Page 2"
 icon = ":books:"
+url_path = "my_books" # You can override the default url path for a page
 ```
 
 Example with sections:
 
 ```toml
 [[pages]]
-path = "streamlit_app.py"
+path = "page1.py"
 name = "Home"
 icon = "🏠"
 
@@ -121,7 +73,7 @@ name = "Page 2"
 icon = ":books:"
 
 [[pages]]
-name = "My second"
+name = "My section"
 icon = "🎈️"
 is_section = true
 
@@ -129,41 +81,37 @@ is_section = true
 [[pages]]
 name = "Another page"
 icon = "💪"
-
-# Unless you explicitly say in_section = false`
-[[pages]]
-name = "Not in a section"
-in_section = false
 ```
 
 Streamlit code:
 
 ```python
-from st_pages import show_pages_from_config, add_page_title
+import streamlit as st
+from st_pages import add_page_title, get_nav_from_toml
 
-# Either this or add_indentation() MUST be called on each page in your
-# app to add indendation in the sidebar
-add_page_title()
+st.set_page_config(layout="wide")
 
-show_pages_from_config()
+nav = get_nav_from_toml(".streamlit/pages_sections.toml")
+
+st.logo("logo.png")
+
+pg = st.navigation(nav)
+
+add_page_title(pg)
+
+pg.run()
 ```
 
 # Hiding pages
 
-You can now pass a list of page names to `hide_pages` to hide pages dynamically for each
-user. Note that these pages are only hidden via CSS, and can still be visited by the URL.
-However, this could be a good option if you simply want a way to visually direct your
-user where they should be able to go next.
+You can now pass a list of page names to `hide_pages` to hide pages from now on.
 
-NOTE: You should only hide pages that have also been added to the sidebar already.
+This list of pages is custom to each viewer of the app, so you can hide pages
+from one viewer but not from another using this method. You can see another example of
+hiding pages in the docs [here](https://docs.streamlit.io/develop/tutorials/multipage/dynamic-navigation)
 
 ```py
-show_pages(
-    [
-        Page("streamlit_app.py", "Home", "🏠"),
-        Page("another.py", "Another page"),
-    ]
-)
+from st_pages import hide_pages
 
 hide_pages(["Another page"])
 ```

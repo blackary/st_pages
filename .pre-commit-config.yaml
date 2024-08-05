@@ -15,6 +15,8 @@ repos:
     hooks:
       - id: mypy
         language_version: python3.9
+    additional_dependencies:
+      - types-toml
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0

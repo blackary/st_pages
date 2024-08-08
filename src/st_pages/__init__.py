@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
+
 import streamlit as st
 import toml
 from streamlit.commands.page_config import get_random_emoji

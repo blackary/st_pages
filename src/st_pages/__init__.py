@@ -75,7 +75,10 @@ def _get_nav_from_toml(
 
         for page in pages:
             if page.is_section:
-                current_section = f"{translate_icon(page.icon)} {page.name}"
+                if translate_icon(page.icon):
+                    current_section = f"{translate_icon(page.icon)} {page.name}"
+                else:
+                    current_section = page.name
                 if page.name in st.session_state[HIDE_PAGES_KEY]:
                     sections_to_drop.append(current_section)
                 continue

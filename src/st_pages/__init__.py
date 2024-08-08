@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-
+from typing import cast
 import streamlit as st
 import toml
 from streamlit.commands.page_config import get_random_emoji
@@ -75,10 +75,10 @@ def _get_nav_from_toml(
 
         for page in pages:
             if page.is_section:
-                if translate_icon(page.icon):
+                if page.icon is not None:
                     current_section = f"{translate_icon(page.icon)} {page.name}"
                 else:
-                    current_section = page.name
+                    current_section = cast(str, page.name)
                 if page.name in st.session_state[HIDE_PAGES_KEY]:
                     sections_to_drop.append(current_section)
                 continue

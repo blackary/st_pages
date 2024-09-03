@@ -39,7 +39,7 @@ HIDE_PAGES_KEY = "_st_pages_pages_to_hide"
 
 
 def _get_nav_from_toml(
-        path: str = ".streamlit/pages.toml",
+    path: str = ".streamlit/pages.toml",
 ) -> list[StreamlitPage] | dict[str, list[StreamlitPage]]:
     """
     Given a path to a TOML file, return a list or dictionary that can be passed to
@@ -57,8 +57,8 @@ def _get_nav_from_toml(
         p
         for p in pages
         if (
-                p.name not in st.session_state[HIDE_PAGES_KEY]
-                and str(p.name).replace("_", " ") not in st.session_state[HIDE_PAGES_KEY]
+            p.name not in st.session_state[HIDE_PAGES_KEY]
+            and str(p.name).replace("_", " ") not in st.session_state[HIDE_PAGES_KEY]
         )
         or p.is_section
     ]
@@ -76,7 +76,7 @@ def _get_nav_from_toml(
 
         for page in pages:
             if page.is_section:
-                if hasattr(page, 'icon') and page.icon != "":
+                if hasattr(page, "icon") and page.icon != "":
                     current_section = f"{translate_icon(page.icon)} {page.name}"
                 else:
                     current_section = cast(str, page.name)
@@ -89,7 +89,7 @@ def _get_nav_from_toml(
                 st.Page(
                     page.path,
                     title=page.name,
-                    icon=translate_icon(page.icon if hasattr(page, 'icon') else None),
+                    icon=translate_icon(page.icon if hasattr(page, "icon") else None),
                     url_path=page.url_path,
                 )
             )
@@ -104,7 +104,7 @@ def _get_nav_from_toml(
                 st.Page(
                     page.path,
                     title=page.name,
-                    icon=translate_icon(page.icon if hasattr(page, 'icon') else None),
+                    icon=translate_icon(page.icon if hasattr(page, "icon") else None),
                     url_path=page.url_path,
                 )
             )
@@ -117,8 +117,8 @@ get_nav_from_toml = gather_metrics("st_pages.get_nav_from_toml", _get_nav_from_t
 
 def _hide_pages(pages: list[str]):
     if (
-            HIDE_PAGES_KEY not in st.session_state
-            or st.session_state[HIDE_PAGES_KEY] != pages
+        HIDE_PAGES_KEY not in st.session_state
+        or st.session_state[HIDE_PAGES_KEY] != pages
     ):
         st.session_state[HIDE_PAGES_KEY] = pages
         st.rerun()
@@ -132,12 +132,12 @@ def _add_page_title(page: StreamlitPage):
     Adds the icon and page name to the page as an st.title.
     """
     page_title = page.title
-    page_icon = translate_icon(page.icon if hasattr(page, 'icon') else None)
+    page_icon = translate_icon(page.icon if hasattr(page, "icon") else None)
 
     if page_icon and "/" in page_icon:
         page_icon = None
 
-    st.title(f"{page_icon} {page_title}" if hasattr(page, 'icon') else page_title)
+    st.title(f"{page_icon} {page_title}" if hasattr(page, "icon") else page_title)
 
 
 add_page_title = gather_metrics("st_pages.add_page_title", _add_page_title)
@@ -199,7 +199,9 @@ def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> list[Page] | 
     for page in raw_pages:
         if page.get("is_section"):
             page["path"] = ""
-            pages.append(Section(page["name"], page["icon"] if hasattr(page, 'icon') else None))  # type: ignore
+            pages.append(
+                Section(page["name"], page["icon"] if hasattr(page, "icon") else None)
+            )  # type: ignore
         else:
             pages.append(Page(**page))  # type: ignore
 

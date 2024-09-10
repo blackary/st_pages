@@ -137,7 +137,7 @@ def _add_page_title(page: StreamlitPage):
     if page_icon and "/" in page_icon:
         page_icon = None
 
-    st.title(f"{page_icon} {page_title}")
+    st.title(f"{page_icon} {page_title}" if page_icon else page_title)
 
 
 add_page_title = gather_metrics("st_pages.add_page_title", _add_page_title)

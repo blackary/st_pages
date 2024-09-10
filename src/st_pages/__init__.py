@@ -199,9 +199,7 @@ def _get_pages_from_config(path: str = ".streamlit/pages.toml") -> list[Page] | 
     for page in raw_pages:
         if page.get("is_section"):
             page["path"] = ""
-            pages.append(
-                Section(page["name"], page["icon"] if hasattr(page, "icon") else None)
-            )  # type: ignore
+            pages.append(Section(page["name"], page.get("icon", None)))  # type: ignore
         else:
             pages.append(Page(**page))  # type: ignore
 

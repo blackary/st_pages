@@ -31,3 +31,13 @@ path = "example_five.py"
 name = "Example Five"
 icon = "🧰"
 url_path = "a_very_long_page_title"
+
+[[pages]]
+name = "Section with no icon"
+is_section = true
+
+[[pages]]
+path = "example_five.py"
+name = "Another example five!"
+icon = "😵‍💫"
+url_path = "example_five_title2"

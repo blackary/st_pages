@@ -59,7 +59,7 @@ icon = ":books:"
 url_path = "my_books" # You can override the default url path for a page
 ```
 
-Example with sections, `.stremalit/pages_sections.toml`:
+Example with sections, `.streamlit/pages_sections.toml`:
 
 ```toml
 [[pages]]

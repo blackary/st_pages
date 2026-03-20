@@ -22,3 +22,5 @@ __pycache__
 !logo.png
 
 .venv
+
+./data/

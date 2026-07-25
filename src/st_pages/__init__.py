@@ -30,8 +30,12 @@ def translate_icon(icon: str | None) -> str | None:
     if icon == "random":
         icon = get_random_emoji()
     elif icon.startswith(":") and icon.endswith(":") and ":material/" not in icon:
-        icon = icon[1:-1]
-        icon = get_icons().get(icon, icon)
+        shortcode = icon[1:-1]
+        # Only substitute when the shortcode is recognized. For an unknown
+        # shortcode, keep the original ``:shortcode:`` string rather than a
+        # colon-stripped fragment, so Streamlit's validation error references
+        # the user's actual input instead of a mangled value.
+        icon = get_icons().get(shortcode, icon)
     return icon
 
 

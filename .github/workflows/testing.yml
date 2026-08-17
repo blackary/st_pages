@@ -8,6 +8,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.9", "3.11"]
 
@@ -17,21 +18,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          poetry install
-          python -m pip install tox tox-gh-actions pytest-playwright pytest-rerunfailures
-      - name: Install playwright dependencies
-        run: |
+          pip install "streamlit==1.36.0" toml pytest pytest-playwright pytest-rerunfailures
           playwright install chromium --with-deps
-      - name: Test with tox
-        run: tox
+      - name: Test
+        env:
+          PYTHONPATH: src
+        run: pytest --browser chromium --reruns 3
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: screenshots
+          name: screenshots-${{ matrix.python-version }}
           path: screenshot*.png

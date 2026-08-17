@@ -12,7 +12,7 @@ def test_page():
 
     page = Page("tests/test_streamlit_pages.py")
     assert page.name == "test_streamlit_pages"
-    assert page.icon == ""
+    assert page.icon is None
 
 
 def test_page_icon():

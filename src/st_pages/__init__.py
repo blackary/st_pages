@@ -24,7 +24,7 @@ def translate_icon(icon: str | None) -> str | None:
     If you pass a name of an icon, like :dog:, translate it into the
     corresponding unicode character
     """
-    if icon is None:
+    if not icon:
         return None
 
     if icon == "random":

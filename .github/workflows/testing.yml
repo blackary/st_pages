@@ -19,7 +19,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: abatilo/actions-poetry@v3
         with:
-          poetry-version: "1.5.1"
+          poetry-version: "1.8.5"
       - name: Install dependencies
         run: |
           poetry install
